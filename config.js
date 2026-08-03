@@ -10,7 +10,7 @@ window.WORKER_URL = "https://dqt-chdnm.phamvietanh158.workers.dev";
 
 // ── % số câu phải LÀM (không cần đúng) để được nộp bài ─
 //    Test: 5   |   Chính thức: 70 hoặc 80
-window.MIN_ATTEMPT_PCT = 5;
+window.MIN_ATTEMPT_PCT = 80;
 
 window.CHAPTER_SCHEDULE = {
 
