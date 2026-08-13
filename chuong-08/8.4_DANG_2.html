@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('no config')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{
   --P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--Pmd:#1976D2;
   --G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;
@@ -1867,6 +1870,19 @@ svg text{font-family:'Plus Jakarta Sans',sans-serif}
   </div>
 </div>
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC & ĐĂNG KÝ CÂU HỎI
+   ANS  : dict kết quả; null=chưa làm, true=đúng, false=sai
+   _sub : cờ đã nộp bài (ngăn nộp lần 2)
+   TQ   : tổng số câu = Object.keys(ANS).length sau khi đăng ký xong
+
+   Đăng ký 2 nhóm câu hỏi (key → null):
+   • Ô điền số (fill-in): key 'inp-a1-ptb1'...
+     Nhóm a1..a4 (đúng tâm & lệch tâm đầy đủ), b1..b4 (cho công thức),
+     c1..c4 (tự xác định — chỉ ghi kết quả cuối)
+   • MCQ xác nhận: key 'mcq-a1b1'...
+     Mỗi bài có 2-3 câu MCQ: nhóm b (kiểm tra SCT), nhóm c (tự đánh giá)
+================================================================ */
 var ANS={},_sub=false,TQ=0;
 
 // Đăng ký tất cả các id ANS
@@ -1887,6 +1903,7 @@ var ANS={},_sub=false,TQ=0;
  'f-c4-gtb','f-c4-Rn1','f-c4-ptc1','f-c4-pmax1','f-c4-Rn2','f-c4-ptc2','f-c4-pmax2'
 ].forEach(function(k){ANS['inp-'+k]=null;});
 
+// Đăng ký MCQ: nhóm b=đã có công thức (SV thay số), c=tự xác định → key 'mcq-a1b1'
 ['a1b1','a1b2','a1b3','a1c1','a1c2','a1c3',
  'a2b1','a2b2','a2c1','a2c2',
  'a3b1','a3b2','a3c1',
@@ -1901,6 +1918,11 @@ var ANS={},_sub=false,TQ=0;
  'c4b1','c4c1'
 ].forEach(function(k){ANS['mcq-'+k]=null;});
 
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH CƠ BẢN
+   gSV()   : đọc thông tin SV từ sessionStorage 'ncm_sv'
+   tog(id) : mở/đóng accordion bài tập (body + header + chevron)
+================================================================ */
 function gSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
 function tog(id){
@@ -1909,6 +1931,15 @@ function tog(id){
   b.classList.toggle('open',!op);h.classList.toggle('open',!op);c.classList.toggle('open',!op);
 }
 
+/* ================================================================
+   KHỐI 3 — HÀM CHẤM BÀI
+   chkFill(id, correct, tol) : kiểm tra ô điền số (kPa, m, kN/m³...)
+                dung sai tol (thường 0.01–1.0 tuỳ đại lượng);
+                hiển thị chip ✓/✗ cạnh ô nhập; lưu ANS['inp-id']
+   pickMCQ(id, picked, correct, expText) : chấm MCQ xác nhận;
+                tô ok/no/rok, hiển thị expText làm giải thích;
+                lưu ANS['mcq-id'], gọi up()
+================================================================ */
 function chkFill(id,correct,tol){
   if(_sub)return;
   var inp=document.getElementById(id);
@@ -1943,6 +1974,12 @@ function pickMCQ(id,picked,correct,expText){
   ANS['mcq-'+id]=(picked===correct);up();
 }
 
+/* ================================================================
+   KHỐI 4 — CẬP NHẬT TIẾN ĐỘ
+   up(): đếm attempted/done từ ANS, cập nhật #pfill/#ptxt/#np/#hprog,
+         lưu localStorage 'prog_c8_84' = {done, total, attempted},
+         cập nhật nút Nộp bài (xanh nếu ≥ MIN_ATTEMPT_PCT %)
+================================================================ */
 function up(){
   var at=0,dn=0,tot=TQ||Object.keys(ANS).length;
   Object.keys(ANS).forEach(function(k){
@@ -1961,6 +1998,12 @@ function up(){
   }
 }
 
+/* ================================================================
+   KHỐI 5 — NỘP BÀI LÊN SERVER
+   sub(): POST kết quả lên Cloudflare Worker
+   chapterId : 'C8-84-KiemTraSCT'
+   Kiểm tra: đã đăng nhập, chưa nộp, đã làm tối thiểu MIN_ATTEMPT_PCT%
+================================================================ */
 function sub(){
   var sv=gSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập!');return;}
@@ -1971,7 +2014,7 @@ function sub(){
   if(at===0){alert('⚠️ Chưa làm câu nào!');return;}
   var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(ap<mp){alert('⚠️ Cần làm tối thiểu '+mp+'%!');return;}
-  var wu=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var wu=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(wu,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
     chapterId:'C8-84-KiemTraSCT',score:sc,correct:dn,total:tot,duration:0
@@ -1983,6 +2026,12 @@ function sub(){
   }).catch(function(err){alert('❌ '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 6 — KHỞI TẠO TRANG
+   1. Hiển thị tên SV/STT từ sessionStorage lên header/badge
+   2. TQ = Object.keys(ANS).length (số câu đã đăng ký ở KHỐI 1)
+   3. Gọi up() lần đầu để khởi tạo thanh tiến độ
+================================================================ */
 window.onload=function(){
   var sv=gSV();
   if(sv&&sv.name){

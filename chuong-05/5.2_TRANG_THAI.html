@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--Pmd:#1976D2;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -282,11 +283,25 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — Biến toàn cục
+   ANS            : kết quả từng câu (null=chưa làm · true=đúng · false=sai)
+   _submitted     : cờ ngăn nộp bài nhiều lần
+   TOTAL_QUESTIONS: tổng số câu
+   PHI_OPTS       : danh sách φ (°) dùng để sinh đề — [20,22,25,28,30]
+   ================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
 var PHI_OPTS=[20,22,25,28,30];
 
+/* ================================================================
+   KHỐI 2 — Hàm tiện ích
+   r1/r2/r3()     : làm tròn 1/2/3 chữ số thập phân
+   seededRng(seed): LCG tất định — cùng seed → cùng dãy số (Park-Miller)
+   getSV()        : đọc {name, mssv, stt, classId} từ sessionStorage 'ncm_sv'
+   scrollNext()   : cuộn đến ô nhập đầu tiên chưa đúng
+   ================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -294,6 +309,15 @@ function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return func
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp)inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});}
 
+/* ================================================================
+   KHỐI 3 — Chấm điểm và cập nhật tiến độ
+   chkFill(id, ans, tol) : so sánh ô nhập với đáp án ±tol, tô màu, lưu ANS[id]
+   checkShowMCQ(id)      : hiện MCQ kết luận khi SV đã điền đủ ô số cần thiết
+   pickMCQ(...)          : xử lý chọn đáp án MCQ, lưu ANS['mcq-name']
+   makeQ(...)            : tạo HTML hàng nhập đáp số, đăng ký ANS[id]=null
+   makeMCQState(...)     : tạo 3 lựa chọn MCQ kết luận trạng thái điểm M
+   updateProg()          : đếm tiến độ, lưu 'prog_c5_52', kích hoạt nút Nộp
+   ================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -341,8 +365,7 @@ function makeQ(id,label,ans,tol,unit){
     +'<span class="chip" id="ck-'+id+'"></span></div>';
 }
 
-function makeMCQState(name,sinVal,sinPhi,correct){
-  // correct: 0=đàn hồi, 1=giới hạn, 2=phá hoại
+// makeMCQState: tạo 3 lựa chọn kết luận trạng thái điểm M
   var opts=[
     'Trạng thái <b>đàn hồi</b> — sinθmax &lt; sinφ (an toàn)',
     'Trạng thái <b>cân bằng giới hạn</b> — sinθmax = sinφ',
@@ -383,6 +406,14 @@ function updateProg(){
   }
 }
 
+/* ================================================================
+   KHỐI 5 — Nộp bài lên server
+   chapterId      = 'C5-52-TrangThai'
+   WORKER_URL     : từ config.js (fallback URL mặc định)
+   MIN_ATTEMPT_PCT: từ config.js (fallback 5%)
+   submitResult() : POST {name, mssv, stt, classId, chapterId, score,
+                    correct, total, duration} lên WORKER_URL
+   ================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -395,7 +426,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C5-52-TrangThai',score:scorePct,correct:done,total:total,duration:0})
@@ -412,7 +443,12 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
-/* ══ SINH SỐ LIỆU ══ */
+/* ================================================================
+   KHỐI 4 — Sinh số liệu theo STT sinh viên
+   genAll(stt): sinh toàn bộ đề bài (A1..A6) — trạng thái tại điểm
+                trong đất rời/dính, dùng seededRng(seed) để mỗi STT
+                có đề khác nhau nhưng tái lập được
+   ================================================================ */
 function genAll(stt){
   // ── A1: σ1,σ3 → sinθmax (đất rời) ──
   (function(){
@@ -704,6 +740,11 @@ function genAll(stt){
   updateProg();
 }
 
+/* ================================================================
+   KHỞI TẠO — window.onload
+   Hiển thị tên/STT SV; gọi genAll(stt) để sinh đề; đặt TOTAL_QUESTIONS;
+   đặt nút Nộp bài về trạng thái khóa ban đầu; gọi updateProg()
+   ================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

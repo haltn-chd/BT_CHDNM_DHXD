@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -256,6 +259,12 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — DỮ LIỆU CỐ ĐỊNH: CASE STUDY SỰ CỐ NỀN MÓNG
+   SC_DATA: mảng 5 case study thực tế (Pisa, đường HCM, cầu, chung cư, hố móng)
+   Mỗi phần tử: { id, icon, name, type, mo_ta, nguyen_nhan,
+                   hau_qua, bai_hoc, chi_phi }
+================================================================ */
 var SC_DATA=[
   {id:'sc1',icon:'🏛️',name:'Tháp nghiêng Pisa (Italy)',type:'Công trình đặc biệt · Thế kỷ 12',
    mo_ta:'Tháp cao 56m bắt đầu nghiêng ngay từ khi xây tầng 2 (năm 1178). Hiện đỉnh tháp lệch hơn 5m so với trục đứng.',
@@ -288,6 +297,12 @@ var SC_DATA=[
    chi_phi:'Cao — bao gồm bồi thường pháp lý, gia cố lại, đình chỉ thi công và phạt hợp đồng'}
 ];
 
+/* ================================================================
+   KHỐI 2 — HIỂN THỊ CASE STUDY
+   renderSC() : tạo HTML accordion cho từng case study trong SC_DATA,
+                chèn vào #sc-zone (gọi một lần trong window.onload)
+   toggleSC(i): mở/đóng body thẻ case study thứ i khi click header
+================================================================ */
 function renderSC(){
   var z=document.getElementById('sc-zone');
   SC_DATA.forEach(function(sc,i){
@@ -319,11 +334,29 @@ function toggleSC(i){
   chev.classList.toggle('open',!open);
 }
 
+/* ================================================================
+   KHỐI 3 — BIẾN TOÀN CỤC & ĐĂNG KÝ CÂU HỎI
+   ANS            : lưu kết quả 10 câu MCQ (null=chưa làm, true/false)
+   _submitted     : cờ ngăn nộp bài lần 2
+   TOTAL_QUESTIONS: tổng số câu = 10 (gán sau khi đăng ký xong)
+   forEach bên dưới: đăng ký 10 key MCQ khái niệm nền móng (q1..q10)
+                     → ANS['mcq-q1'] ... ANS['mcq-q10'] = null
+================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
 ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'].forEach(function(k){ANS['mcq-'+k]=null;});
 
+/* ================================================================
+   KHỐI 4 — CHẤM CÂU HỎI MCQ & CẬP NHẬT TIẾN ĐỘ
+   getSV()    : đọc thông tin SV từ sessionStorage 'ncm_sv'
+   pickMCQ(id, picked, correct):
+     - Khóa tất cả lựa chọn sau khi SV đã bấm chọn
+     - Tô xanh nếu đúng / đỏ nếu sai / reveal đáp án đúng
+     - Lưu ANS['mcq-id'] và gọi updateProg()
+   updateProg(): tính tiến độ attempted/done, cập nhật thanh %,
+     lưu localStorage 'prog_c7_71', kích hoạt nút Nộp bài
+================================================================ */
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
 function pickMCQ(id,picked,correct){
@@ -361,6 +394,13 @@ function updateProg(){
   }
 }
 
+/* ================================================================
+   KHỐI 5 — NỘP BÀI LÊN SERVER
+   submitResult(): POST kết quả lên Cloudflare Worker
+   chapterId   : 'C7-71-KhaiNiem'
+   WORKER_URL / MIN_ATTEMPT_PCT: đọc từ config.js nếu có,
+     mặc định Worker URL và minPct=5%
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -373,7 +413,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu!');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C7-71-KhaiNiem',score:scorePct,correct:done,total:total,duration:0})
@@ -388,6 +428,13 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 6 — KHỞI TẠO TRANG
+   1. Đọc SV từ sessionStorage, hiện tên/STT lên header
+   2. Gọi renderSC() → render 5 thẻ accordion case study sự cố nền móng
+   3. Gán TOTAL_QUESTIONS = Object.keys(ANS).length (=10 MCQ đã đăng ký)
+   4. Khởi tạo nút Nộp bài (trạng thái khóa) và gọi updateProg() lần đầu
+================================================================ */
 window.onload=function(){
   var sv=getSV();
   if(sv&&sv.name){

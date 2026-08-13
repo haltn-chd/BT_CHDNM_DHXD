@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--A:#FF8F00;--Alt:#FFF8E1;--Adk:#E65100;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
@@ -77,7 +80,7 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 <div id="toast"></div>
 <header class="hdr"><div class="hdr-in">
   <a href="index_C2.html" class="hdr-back"><i class="ti ti-arrow-left"></i> Chương 2</a>
-  <div class="hdr-t"><h1>2.0 — Lý Thuyết Ứng Suất Trong Đất</h1><p>Chương 2 · Cơ Học Đất · TS. Phạm Việt Anh · ĐHXD Hà Nội</p></div>
+  <div class="hdr-t"><h1>2.0 — Lý Thuyết Ứng Suất Trong Đất</h1><p>Chương 2 · Cơ Học Đất · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội</p></div>
   <div class="hdr-sv" id="hdr-sv">SV #–</div>
 </div></header>
 <div class="sv-box" id="sv-box"><div class="sv-av" id="sv-av">?</div><div><div class="sv-name" id="sv-name">–</div><div class="sv-meta" id="sv-meta">–</div></div></div>
@@ -235,12 +238,36 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
   </div>
 </div>
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   DANG_ID : 'lt' — định danh trang lý thuyết, tạo localStorage key
+   ANS     : lưu kết quả MCQ (null = chưa chọn, true/false)
+   Không có _submitted (trang lý thuyết không nộp bài)
+================================================================ */
+
 var DANG_ID = 'lt';
 var ANS = {};
+
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH DÙNG CHUNG
+   toast(msg, dur)  : hiện thông báo nổi, tự tắt sau dur ms
+   getSV()          : đọc thông tin sinh viên từ sessionStorage
+   scrollNext()     : cuộn đến câu chưa làm tiếp theo
+   renderSV()       : hiển thị tên, MSSV, STT lên thanh header
+   (không có seededRng/r1/r2/togS vì trang LT không có bài số)
+================================================================ */
 function toast(msg,dur){dur=dur||3000;var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove('show');},dur);}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp){inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});inp.focus();}}
 function renderSV(){var sv=getSV();if(!sv||!sv.name)return;var box=document.getElementById('sv-box');if(box)box.classList.add('show');var av=document.getElementById('sv-av');if(av)av.textContent=sv.name.charAt(0).toUpperCase();var nm=document.getElementById('sv-name');if(nm)nm.textContent=sv.name;var mt=document.getElementById('sv-meta');if(mt)mt.textContent='MSSV: '+sv.mssv+' · STT: '+sv.stt+' · '+sv.classId;var hs=document.getElementById('hdr-sv');if(hs)hs.textContent='SV #'+sv.stt;}
+
+/* ================================================================
+   KHỐI 3 — CHẤM CÂU HỎI & THEO DÕI TIẾN ĐỘ
+   pickMCQ(name,idx,correct,expText): chấm MCQ, lock sau khi chọn, hiện giải thích
+   updateProg(): cập nhật thanh tiến độ, lưu localStorage 'prog_c2_lt'
+   ⚠️ localStorage key: 'prog_c2_lt' — index_C2.html không đọc key này
+   (không có chkFill/makeQ vì trang LT không có ô nhập số)
+================================================================ */
 function pickMCQ(name,idx,correct,expText){
   if(ANS['mcq-'+name]!=null)return;
   var ok=(idx===correct);
@@ -260,10 +287,22 @@ function updateProg(){
   var np=document.getElementById('nav-prog');if(np)np.textContent=done+'/'+total;
   localStorage.setItem('prog_c2_lt',JSON.stringify({done:done,total:total}));
 }
+
+/* ================================================================
+   KHỐI 4 — SINH BÀI TẬP (genAll)
+   genAll(): chỉ khởi tạo 3 MCQ keys (lt1, lt2, lt3), gọi updateProg
+   MCQ được hard-coded trong HTML — không sinh số theo STT
+   (không có seededRng vì trang LT không có bài tính số)
+================================================================ */
 function genAll(){
   ANS['mcq-lt1']=null; ANS['mcq-lt2']=null; ANS['mcq-lt3']=null;
   updateProg();
 }
+
+/* ================================================================
+   KHỐI 5 — KHỞI TẠO TRANG (window.onload)
+   Thứ tự: renderSV() → genAll() (genAll tự gọi updateProg)
+================================================================ */
 window.onload=function(){renderSV();genAll();};
 </script>
 </body>

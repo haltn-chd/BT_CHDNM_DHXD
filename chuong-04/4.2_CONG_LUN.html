@@ -8,6 +8,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh lá chính (#2E7D32 — màu chủ đạo bài 4.2 Cộng lún)
+   --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo), --Alt=vàng nhạt
+   --B=xanh dương bổ sung (#1565C0, --Blt=nhạt), dùng làm màu nhấn công thức
+   --bg=nền trang (xanh lá nhạt), --sur=nền card, --brd=viền xanh lá nhạt, --muted=chữ mờ ── */
 :root{--P:#2E7D32;--Pdk:#1B5E20;--Plt:#E8F5E9;--Pmd:#388E3C;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--B:#1565C0;--Blt:#E3F2FD;--bg:#F1F8E9;--sur:#fff;--brd:#A5D6A7;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(46,125,50,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -285,7 +290,21 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS: object {id → true/false/null} ghi nhận kết quả từng câu
+   _submitted: cờ khóa sau khi nộp bài (chống nộp nhiều lần)
+   TOTAL_QUESTIONS: đếm sau genA() + genBC() trong window.onload
+================================================================ */
 var ANS={}, _submitted=false, TOTAL_QUESTIONS=0;
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH
+   r1/r2/r3/r4/r5(v): làm tròn 1–5 chữ số thập phân
+     r5 dùng cho hệ số nén a (đơn vị m²/kN, giá trị rất nhỏ)
+   seededRng(seed): sinh số ngẫu nhiên có hạt giống LCG
+     s = (s*9301 + 49297) % 233280  (khác công thức ch2/ch3!)
+   getSV(): đọc thông tin sinh viên từ sessionStorage
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -294,6 +313,15 @@ function r5(v){return Math.round(v*100000)/100000}
 function seededRng(seed){var s=(seed%233280+233280)%233280||1;return function(){s=(s*9301+49297)%233280;return s/233280;}}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
+/* ================================================================
+   KHỐI 3 — LOGIC CHẤM & NỘP BÀI
+   chkFill(id,ans,tol): chấm ô nhập số, cập nhật ANS + giao diện
+   pickMCQ(name,picked,correct,expText): chấm câu trắc nghiệm
+   updateProg(): tính % hoàn thành, lưu 'prog_c4_42' localStorage
+   makeQ(id,label,ans,tol,unit): sinh HTML ô nhập + đăng ký ANS
+   submitResult(): nộp bài — gửi POST chapter:'4.2'
+   ⚠️ updateProg chỉ lưu done/total (không có attempted như ch2/ch3)
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id),chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -350,6 +378,15 @@ function submitResult(){
     .catch(function(){alert('Lỗi kết nối. Vui lòng thử lại.');});
 }
 
+/* ================================================================
+   KHỐI 4 — SINH SỐ LIỆU NHÓM A (12 bài — lún nền)
+   genA(stt): 12 IIFE độc lập, seed theo stt sinh viên
+     A1–A4: S theo e₀/e₁, a, mv, S tổng hỗn hợp + kiểm tra tắt lún
+     A5: S theo E₀ (hệ số β = 1−2μ²/(1−μ))
+     A6–A8: tìm ngược a, mv, Δσ từ S đo được
+     A9–A11: cộng lún 2, 3, 4 phân tố
+     A12: chiều sâu ảnh hưởng lún H_ah (so Δσ vs 0.2σ_bt)
+================================================================ */
 /* ══════════════════════════════════════
    SINH SỐ LIỆU NHÓM A
 ══════════════════════════════════════ */
@@ -638,6 +675,14 @@ function genA(stt){
   })();
 }
 
+/* ================================================================
+   KHỐI 5 — SINH THẺ B & C (12 dạng — lún nền)
+   CFG[12]: config {id, title, type, fml} cho từng dạng bài B/C
+   genBC(stt): render HTML shell tất cả thẻ B/C vào #b-cards/#c-cards
+   genOne(id,type,stt,s1,s2): sinh số liệu cho 1 thẻ theo type
+     Các type: e0e1, a_e0, mv, tong_am, E0,
+                ng_a, ng_mv, ng_dsig, cong2, cong3, cong4, hah
+================================================================ */
 /* ══════════════════════════════════════
    SINH SỐ LIỆU NHÓM B & C
 ══════════════════════════════════════ */
@@ -782,6 +827,13 @@ function genOne(id,type,stt,s1,s2){
   }
 }
 
+/* ================================================================
+   KHỐI 6 — KHỞI TẠO & WINDOW.ONLOAD
+   Ghi timestamp bắt đầu làm bài vào window._startTime
+   Đăng ký 3 câu MCQ (mcq-q1/q2/q3) vào ANS với giá trị null
+   window.onload: đọc SV, gọi genA(stt), genBC(stt),
+     đếm TOTAL_QUESTIONS = Object.keys(ANS).length
+================================================================ */
 window._startTime=Date.now();
 ['mcq-q1','mcq-q2','mcq-q3'].forEach(function(k){ANS[k]=null;});
 

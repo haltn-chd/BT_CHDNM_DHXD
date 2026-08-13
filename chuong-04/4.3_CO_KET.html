@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=cam đỏ chính (#E65100 — màu chủ đạo bài 4.3 Cố kết), --Pdk/Plt=tối/nhạt
+   --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo), --Alt=vàng nhạt
+   --bg=nền trang (cam nhạt #FFF3E0), --sur=nền card, --brd=viền vàng cam, --muted=chữ mờ ── */
 :root{--P:#E65100;--Pdk:#BF360C;--Plt:#FBE9E7;--Pmd:#F4511E;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#FFF3E0;--sur:#fff;--brd:#FFCC80;--muted:#546E7A;--text:#1C0A00;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(230,81,0,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -250,13 +254,33 @@ table.tbl tr:nth-child(even) td{background:#FFFDE7}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS: object {id → true/false/null} ghi nhận kết quả từng câu
+   _submitted: cờ khóa sau khi nộp bài (chống nộp nhiều lần)
+   TOTAL_QUESTIONS: đếm sau genA() + genBC() trong window.onload
+================================================================ */
 var ANS={}, _submitted=false, TOTAL_QUESTIONS=0;
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH
+   r1/r2/r3(v): làm tròn 1/2/3 chữ số thập phân
+   seededRng(seed): sinh số ngẫu nhiên có hạt giống LCG
+     s = (s*9301 + 49297) % 233280  (khác công thức ch2/ch3!)
+   getSV(): đọc thông tin sinh viên từ sessionStorage
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
 function seededRng(seed){var s=(seed%233280+233280)%233280||1;return function(){s=(s*9301+49297)%233280;return s/233280;}}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
+/* ================================================================
+   KHỐI 3 — BẢNG CỐ KẾT & NỘI SUY Tv/U
+   getU(Tv): tính U(%) từ Tv theo xấp xỉ Terzaghi 2 vế
+     Tv < 0.217 → U = 2√(Tv/π)×100; ngược lại → chuỗi tắt dần
+   TV_TAB / U_TAB: 20 cặp điểm rời rạc để nội suy ngược
+   getTv(Upct): tra ngược Tv từ U(%) qua nội suy tuyến tính
+================================================================ */
 /* ── Tính U từ Tv (xấp xỉ Terzaghi) ── */
 function getU(Tv){
   if(Tv<=0)return 0;
@@ -279,6 +303,15 @@ function getTv(Upct){
   return r3(Math.PI/4*Math.pow(Upct/100,2));
 }
 
+/* ================================================================
+   KHỐI 4 — LOGIC CHẤM & NỘP BÀI
+   chkFill(id,ans,tol): chấm ô nhập số, cập nhật ANS + giao diện
+   pickMCQ(name,picked,correct,expText): chấm câu trắc nghiệm
+   updateProg(): tính % hoàn thành, lưu 'prog_c4_43' localStorage
+   makeQ(id,label,ans,tol,unit): sinh HTML ô nhập + đăng ký ANS
+   submitResult(): nộp bài — gửi POST chapter:'4.3'
+   ⚠️ updateProg chỉ lưu done/total (không có attempted như ch2/ch3)
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id),chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -335,6 +368,14 @@ function submitResult(){
     .catch(function(){alert('Lỗi kết nối. Vui lòng thử lại.');});
 }
 
+/* ================================================================
+   KHỐI 5 — SINH SỐ LIỆU NHÓM A (4 bài — cố kết Terzaghi)
+   genA(stt): 4 IIFE độc lập, seed theo stt sinh viên
+     A1: Tính S(t) — 1 mặt thoát, Hdr=H
+     A2: Tính S(t) — 2 mặt thoát, Hdr=H/2
+     A3: Tìm thời gian t khi biết U(%) — tra ngược getTv(U)
+     A4: Tính U(t) từ S(t)/S∞, tra ngược Tv và kiểm tra
+================================================================ */
 /* ════ SINH SỐ LIỆU NHÓM A ════ */
 function genA(stt){
 
@@ -451,6 +492,14 @@ function genA(stt){
   })();
 }
 
+/* ================================================================
+   KHỐI 6 — SINH THẺ B & C (4 dạng — cố kết)
+   CFG[4]: config {id, title, type, fml} cho từng dạng bài B/C
+   genBC(stt): render HTML shell tất cả thẻ B/C vào #b-cards/#c-cards
+   genOne(id,type,stt,s1,s2): sinh số liệu cho 1 thẻ theo type
+     Các type: st_1mat (S(t) 1 mặt), st_2mat (S(t) 2 mặt),
+                tinht (tìm t từ U), tinhU (tính U từ S(t)/S∞)
+================================================================ */
 /* ════ SINH SỐ LIỆU NHÓM B & C ════ */
 var CFG=[
   {id:'1',title:'Tính S(t) — Thoát nước 1 mặt',   type:'st_1mat',
@@ -527,6 +576,13 @@ function genOne(id,type,stt,s1,s2){
   }
 }
 
+/* ================================================================
+   KHỐI 7 — KHỞI TẠO & WINDOW.ONLOAD
+   Ghi timestamp bắt đầu làm bài vào window._startTime
+   Đăng ký 3 câu MCQ (mcq-q1/q2/q3) vào ANS với giá trị null
+   window.onload: đọc SV, gọi genA(stt), genBC(stt),
+     đếm TOTAL_QUESTIONS = Object.keys(ANS).length
+================================================================ */
 window._startTime=Date.now();
 ['mcq-q1','mcq-q2','mcq-q3'].forEach(function(k){ANS[k]=null;});
 

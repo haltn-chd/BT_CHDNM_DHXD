@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -315,23 +318,45 @@ table.tbl tr.hi td{background:#FFF9C4;font-weight:700;color:var(--A)}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — Biến toàn cục
+   ANS            : kết quả từng câu (null=chưa làm · true=đúng · false=sai)
+   _submitted     : cờ ngăn nộp bài nhiều lần
+   TOTAL_QUESTIONS: tổng số câu
+   ================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
+
+/* ================================================================
+   KHỐI 2 — Hàm tiện ích
+   r1/r2()        : làm tròn 1/2 chữ số thập phân
+   seededRng(seed): LCG tất định — cùng seed → cùng dãy số (Park-Miller)
+   getSV()        : đọc {name, mssv, stt, classId} từ sessionStorage 'ncm_sv'
+   scrollNext()   : cuộn đến ô nhập đầu tiên chưa đúng
+   ================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return function(){s=s*16807%2147483647;return(s-1)/2147483646;};}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp)inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});}
 
+// Bảng tra Terzaghi: PHI_VALS → N_GAMMA/N_Q/N_C; PHI_RIGID/PHI_DINH: danh sách φ dùng để sinh đề
 var PHI_VALS=[0,5,10,15,17,18,20,22,25,28,30,32,35];
 var N_GAMMA=[0,0.5,1.2,2.5,3.4,3.9,5.0,6.4,9.7,15.4,19.7,24.5,42.4];
 var N_Q=[1.0,1.6,2.7,4.4,5.5,6.0,7.4,9.2,12.7,17.8,22.5,28.5,41.4];
 var N_C=[5.7,7.3,9.6,12.9,14.6,15.5,17.7,20.3,25.1,31.6,37.2,44.0,57.8];
 var PHI_RIGID=[25,28,30,32,35]; // dùng cho đất rời, c=0
 var PHI_DINH=[15,17,18,20,22,25]; // dùng cho đất dính, c>0
+// Hàm tra bảng: nhận φ (độ), trả về {Ng, Nq, Nc} tương ứng
 function getN(phi){var idx=PHI_VALS.indexOf(phi);if(idx<0)idx=PHI_VALS.indexOf(30);return{Ng:N_GAMMA[idx],Nq:N_Q[idx],Nc:N_C[idx]};}
 
+/* ================================================================
+   KHỐI 3 — Chấm điểm và cập nhật tiến độ
+   chkFill(id, ans, tol): so sánh ô nhập với đáp án ±tol, tô màu, lưu ANS[id]
+   makeQ(...)           : tạo HTML hàng nhập đáp số, đăng ký ANS[id]=null
+   updateProg()         : đếm tiến độ, lưu 'prog_c5_53', kích hoạt nút Nộp
+   ================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -369,6 +394,14 @@ function updateProg(){
     }
   }
 }
+/* ================================================================
+   KHỐI 5 — Nộp bài lên server
+   chapterId      = 'C5-53-SCTNen'
+   WORKER_URL     : từ config.js (fallback URL mặc định)
+   MIN_ATTEMPT_PCT: từ config.js (fallback 5%)
+   submitResult() : POST {name, mssv, stt, classId, chapterId, score,
+                    correct, total, duration} lên WORKER_URL
+   ================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -381,7 +414,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C5-53-SCTNen',score:scorePct,correct:done,total:total,duration:0})
@@ -398,6 +431,13 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 4 — Sinh số liệu theo STT sinh viên
+   genA(stt)  : sinh nhóm A có gợi ý (A1..A8) — Terzaghi cho móng đơn/băng
+                đất rời/dính; mỗi bài dùng seed riêng theo STT
+   genBC(stt) : sinh nhóm B (có công thức sẵn) và C (tự tra bảng) — nhiều
+                loại bài mẫu tương tự; seed khác với nhóm A
+   ================================================================ */
 function genA(stt){
   // ── A1: Móng đơn, đất rời ──
   (function(){
@@ -700,6 +740,11 @@ function genOne(cfg,stt,hideHint){
   }
 }
 
+/* ================================================================
+   KHỞI TẠO — window.onload
+   Hiển thị tên/STT SV; gọi genA(stt)+genBC(stt) để sinh đề;
+   đặt TOTAL_QUESTIONS; đặt nút Nộp bài về trạng thái khóa; gọi updateProg()
+   ================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

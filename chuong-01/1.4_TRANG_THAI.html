@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -501,9 +504,23 @@ table.tbl .hl{background:#FFF9C4!important;font-weight:700}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS            : lưu kết quả từng câu { id: true/false/null }
+   _submitted     : cờ ngăn nộp lại sau khi đã gửi
+   TOTAL_QUESTIONS: tổng số câu, gán sau window.onload
+================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
+
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH DÙNG CHUNG
+   r1/r2/r3  : làm tròn 1/2/3 chữ số thập phân
+   seededRng : sinh ngẫu nhiên LCG theo seed STT
+   getSV     : đọc thông tin SV từ sessionStorage 'ncm_sv'
+   scrollNext: cuộn tới ô nhập đầu tiên chưa đúng
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -511,6 +528,13 @@ function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return func
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp)inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});}
 
+/* ================================================================
+   KHỐI 3 — CHẤM CÂU HỎI ĐIỀN SỐ
+   chkFill: kiểm tra ô nhập, sau khi đúng sẽ gọi checkShowMCQ
+     để hiện MCQ kết luận (đặc điểm riêng của file 1.4)
+   checkShowMCQ(id): sau khi SV điền số xong, hiện ô chọn kết luận
+     (ví dụ: tính Dr xong → hiện MCQ "Đất rời / Chặt vừa / Chặt")
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -537,6 +561,12 @@ function makeQ(id,label,ans,tol,unit){
     +'<input class="ans-inp" id="'+id+'" type="number" step="any" placeholder="?" oninput="chkFill(\''+id+'\','+ans+','+tol+')">'
     +'<span class="ans-unit">'+unit+'</span><span class="chip" id="ck-'+id+'"></span></div>';
 }
+/* ================================================================
+   KHỐI 4 — XỬ LÝ MCQ VÀ SINH MCQ ĐỘNG
+   pickMCQ: xử lý click MCQ có sẵn trong HTML (câu lý thuyết)
+   makeMCQGeneric(id, opts, correct): tạo MCQ động từ mảng opts[]
+     → dùng cho bài tập kết luận trạng thái (A1-A10, B1-B10, C1-C10)
+================================================================ */
 function pickMCQ(name,picked,correct,expText){
   if(ANS['mcq-'+name]!=null)return;
   var ok=(picked===correct);
@@ -551,6 +581,18 @@ function makeMCQGeneric(id,opts,correct){
   ANS['mcq-'+id]=null;
 }
 
+/* ================================================================
+   KHỐI 5 — BẢNG TRA TRẠNG THÁI ĐẤT (TCVN)
+   E_TABLE : ngưỡng e cho đất rời (cát thô/nhỏ/bụi) → Chặt/Chặt vừa/Rời
+   getTrangThaiE(loai, e)    : tra bảng theo e
+   getTrangThaiDrIdx(Dr)     : phân loại theo Dr (%) — 0=Rời,1=Chặt vừa,2=Chặt
+   getTrangThaiDinhIdx(IL)   : phân loại đất dính theo IL/B (6 mức)
+   getTenDatIdx(Ip)          : phân loại tên đất dính theo Ip
+   getSptRoiIdx(N)           : tra bảng SPT đất rời (5 mức)
+   getSptDinhIdx(N)          : tra bảng SPT đất dính (6 mức)
+   getCptIdx(loai, qc)       : tra bảng CPT theo loại cát và qc (MPa)
+   ⚠️ Sửa ngưỡng ở đây nếu muốn cập nhật theo TCVN mới
+================================================================ */
 // ── Bảng tra trạng thái đất rời theo e ──
 var E_TABLE={
   tho:{chat:0.55,chatvua:0.70},
@@ -577,6 +619,11 @@ function getCptIdx(loai,qc){
   return 0; // Chặt
 }
 
+/* ================================================================
+   KHỐI 6 — THEO DÕI TIẾN ĐỘ
+   Cập nhật thanh progress, nút nộp bài, và lưu localStorage.
+   ⚠️ Key localStorage là 'prog_c1_14' — index_C1.html đọc đúng key này.
+================================================================ */
 function updateProg(){
   var attempted=0,done=0,total=TOTAL_QUESTIONS||Object.keys(ANS).length;
   Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){attempted++;if(ANS[k]===true)done++;}});
@@ -598,6 +645,11 @@ function updateProg(){
     }
   }
 }
+/* ================================================================
+   KHỐI 7 — NỘP BÀI LÊN CLOUDFLARE WORKER
+   chapterId: 'C1-14-TrangThai' — định danh bài này trên server.
+   Worker giới hạn 2 lần nộp/chương. MIN_ATTEMPT_PCT từ config.js.
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -610,7 +662,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C1-14-TrangThai',score:scorePct,correct:done,total:total,duration:0})
@@ -627,6 +679,21 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 8 — BÀI TẬP NHÓM A (hướng dẫn đầy đủ, 10 dạng phân loại)
+   Mỗi bài là IIFE độc lập. Cấu trúc bài: sinh số liệu → điền số → MCQ kết luận.
+   MCQ kết luận ẩn ban đầu, hiện ra sau khi SV điền đủ ô số (checkShowMCQ).
+     A1  : trạng thái đất rời theo e (tra bảng E_TABLE)
+     A2  : trạng thái đất rời theo Dr = (emax-e)/(emax-emin)×100%
+     A3  : trạng thái đất rời theo SPT (getSptRoiIdx)
+     A4  : trạng thái đất rời theo CPT (getCptIdx)
+     A5  : trạng thái đất dính theo w (so sánh w với WP, WL)
+     A6  : trạng thái đất dính theo IL/B = (w-WP)/IP
+     A7  : trạng thái đất dính theo SPT (getSptDinhIdx)
+     A8  : phân loại tên đất dính theo IP (getTenDatIdx)
+     A9  : phân loại tên đất rời nhóm 1 (hạt thô d>2mm, >0.5mm, >0.25mm)
+     A10 : phân loại tên đất rời nhóm 2 (cát mịn/bụi theo p(d>0.1mm))
+================================================================ */
 function genA(stt){
   // A1: theo e
   (function(){
@@ -808,6 +875,14 @@ function genA(stt){
   })();
 }
 
+/* ================================================================
+   KHỐI 9 — BÀI TẬP NHÓM B VÀ C (10 dạng × 2 nhóm = 20 bài)
+   genBC: tạo HTML động cho nhóm B (có công thức) và C (tự nhận biết)
+   genOne(id, type, stt, s1, s2): sinh 1 bài theo type
+   CFG: 10 dạng bài tương ứng A1-A10, mỗi dạng có {id, title, type, fml}
+   ĐẶC ĐIỂM RIÊNG CỦA 1.4: mỗi card B/C có thêm mcq-wrap ẩn
+     → hiện ra sau khi SV điền số (checkShowMCQ trong genOne)
+================================================================ */
 function genBC(stt){
   var CFG=[
     {id:'1',title:'Trạng thái đất rời theo e',type:'e',fml:'So sánh e với bảng tra theo loại cát'},
@@ -946,6 +1021,14 @@ function genOne(id,type,stt,s1,s2){
   }
 }
 
+/* ================================================================
+   KHỐI 10 — KHỞI TẠO TRANG
+   1. Đọc SV từ sessionStorage → hiển thị tên/STT lên header
+   2. genA(stt)  → render 10 bài nhóm A (có MCQ ẩn ban đầu)
+   3. genBC(stt) → tạo HTML động nhóm B+C (20 bài), gọi genOne()
+   4. TOTAL_QUESTIONS = đếm tất cả key ANS đã đăng ký
+   5. updateProg() → cập nhật lần đầu (0%)
+================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

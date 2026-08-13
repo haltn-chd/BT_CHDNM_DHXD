@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--Pmd:#1976D2;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -53,7 +56,7 @@ main{max-width:960px;margin:0 auto;padding:24px 20px 80px}
     <a href="../index.html" class="back-btn"><i class="ti ti-arrow-left"></i> Trang chủ</a>
     <div class="hdr-title">
       <h1>Chương 3 — Tính Chất Cơ Học Của Đất</h1>
-      <p>NCM: Cơ Học Đất - Nền Móng · TS. Phạm Việt Anh · ĐHXD Hà Nội</p>
+      <p>NCM: Cơ Học Đất - Nền Móng · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội</p>
     </div>
   </div>
 </header>
@@ -150,6 +153,12 @@ main{max-width:960px;margin:0 auto;padding:24px 20px 80px}
   </div>
 </main>
 <script>
+/* ================================================================
+   KHỐI 1 — KHỞI TẠO TRANG (window.onload)
+   Đọc 4 localStorage keys: 'prog_c3_31' → 'prog_c3_34'
+   Hiển thị tiến độ từng bài (prog-31 đến prog-34) và tổng
+   Đọc SV từ sessionStorage → hiển thị tên/MSSV/STT
+================================================================ */
 window.onload=function(){
   var sv=null;
   try{sv=JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){}

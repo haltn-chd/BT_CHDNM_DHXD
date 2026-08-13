@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -198,15 +201,35 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — Biến toàn cục
+   ANS            : kết quả từng câu (null=chưa làm · true=đúng · false=sai)
+   _submitted     : cờ ngăn nộp bài nhiều lần
+   TOTAL_QUESTIONS: tổng số câu
+   ================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
+
+/* ================================================================
+   KHỐI 2 — Hàm tiện ích
+   r1/r2()        : làm tròn 1/2 chữ số thập phân
+   seededRng(seed): LCG tất định — cùng seed → cùng dãy số (Park-Miller)
+   getSV()        : đọc {name, mssv, stt, classId} từ sessionStorage 'ncm_sv'
+   scrollNext()   : cuộn đến ô nhập đầu tiên chưa đúng
+   ================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return function(){s=s*16807%2147483647;return(s-1)/2147483646;};}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp)inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});}
 
+/* ================================================================
+   KHỐI 3 — Chấm điểm và tiến độ
+   chkFill(id,ans,tol): so sánh đáp số ô nhập với đáp án, tô xanh/đỏ
+   makeQ(id,…)        : tạo HTML hàng nhập đáp số, đăng ký key vào ANS
+   updateProg()       : cập nhật thanh tiến độ, lưu localStorage 'prog_c6_62', mở nút Nộp
+   ================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -244,6 +267,12 @@ function updateProg(){
     }
   }
 }
+/* ================================================================
+   KHỐI 5 — Nộp kết quả lên server
+   submitResult()  : POST {chapterId='C6-62-ApLucTinh', score%, đúng/tổng} lên Worker
+   WORKER_URL      : endpoint Cloudflare Worker (từ config.js)
+   MIN_ATTEMPT_PCT : % tối thiểu phải làm trước khi nộp (từ config.js)
+   ================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -256,7 +285,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C6-62-ApLucTinh',score:scorePct,correct:done,total:total,duration:0})
@@ -273,9 +302,14 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 4 — Sinh số liệu theo STT sinh viên
+   MU_OPTS       : bảng hệ số Poisson đất dính [0.25..0.40]
+   genA(stt)     : nhóm A có gợi ý — A1-A4: p₀, K₀, E₀ đất rời/dính
+   genBC(stt)    : nhóm B (có công thức sẵn) và C (tự nhận biết)
+   genOne(cfg,stt): render một bài con theo loại roi_p0/dinh_p0/roi_E0/dinh_E0
+   ================================================================ */
 var MU_OPTS=[0.25,0.28,0.30,0.32,0.35,0.40];
-
-/* ══ SINH SỐ LIỆU A1-A4 ══ */
 function genA(stt){
   // A1: Cường độ áp lực tĩnh, đất rời (K0 cho trực tiếp)
   (function(){
@@ -428,6 +462,12 @@ function genOne(cfg,stt){
   }
 }
 
+/* ================================================================
+   Khởi tạo trang (window.onload)
+   1. Đọc SV từ sessionStorage, hiển thị tên và STT lên header
+   2. Gọi genA(stt) và genBC(stt) để sinh đề bài
+   3. Đếm TOTAL_QUESTIONS, khởi tạo nút Nộp bài
+   ================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

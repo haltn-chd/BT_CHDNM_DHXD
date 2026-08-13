@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -235,10 +238,23 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
   </div>
 </div>
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC & HÀM TIỆN ÍCH
+   ANS, _submitted, TOTAL_QUESTIONS: như các bài khác
+   getSV: đọc thông tin SV từ sessionStorage 'ncm_sv'
+================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
+
+/* ================================================================
+   KHỐI 2 — XỬ LÝ 8 CÂU MCQ LÝ THUYẾT NGUỒN GỐC ĐẤT (q1..q8)
+   pickMCQ(name, idx, correct, expText): xử lý click một lựa chọn
+   Tất cả câu hỏi đã được định nghĩa sẵn trong HTML (không sinh động)
+   ĐỂ THÊM CÂU HỎI: thêm HTML .mcq-wrap trong body và thêm 'qN' vào
+   mảng trong window.onload (dòng cuối file)
+================================================================ */
 function pickMCQ(name,idx,correct,expText){
   if(ANS['mcq-'+name]!=null)return;
   var ok=(idx===correct);
@@ -249,6 +265,10 @@ function pickMCQ(name,idx,correct,expText){
   if(exp){exp.style.display='block';exp.className='mcq-exp show '+(ok?'ok-e':'no-e');if(expText)exp.innerHTML=expText;}
   ANS['mcq-'+name]=ok;updateProg();
 }
+/* ================================================================
+   KHỐI 3 — THEO DÕI TIẾN ĐỘ
+   ⚠️ Key localStorage 'prog_c1_11' — index_C1.html đọc đúng key này.
+================================================================ */
 function updateProg(){
   var attempted=0,done=0,total=TOTAL_QUESTIONS||Object.keys(ANS).length;
   Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){attempted++;if(ANS[k]===true)done++;}});
@@ -270,6 +290,10 @@ function updateProg(){
     }
   }
 }
+/* ================================================================
+   KHỐI 4 — NỘP BÀI LÊN CLOUDFLARE WORKER
+   chapterId: 'C1-11-NguonGoc' — định danh bài này trên server.
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -282,7 +306,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C1-11-NguonGoc',score:scorePct,correct:done,total:total,duration:0})
@@ -298,6 +322,12 @@ function submitResult(){
   })
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
+/* ================================================================
+   KHỐI 5 — KHỞI TẠO TRANG
+   Đăng ký 8 câu MCQ (q1-q8) vào ANS với giá trị null ban đầu.
+   ĐỂ THÊM CÂU HỎI: thêm 'qN' vào mảng bên dưới, đồng thời thêm
+   HTML .mcq-wrap tương ứng vào phần body.
+================================================================ */
 window.onload=function(){
   var sv=getSV();
   if(sv&&sv.name){

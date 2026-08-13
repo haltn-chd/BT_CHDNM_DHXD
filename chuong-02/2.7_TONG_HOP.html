@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--Pmd:#1976D2;--A:#FF8F00;--Alt:#FFF8E1;--Adk:#E65100;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
@@ -88,7 +91,7 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 <div id="toast"></div>
 <header class="hdr"><div class="hdr-in">
   <a href="index_C2.html" class="hdr-back"><i class="ti ti-arrow-left"></i> Chương 2</a>
-  <div class="hdr-t"><h1>2.7 — Ôn Tập & Tổng Hợp Chương 2</h1><p>Chương 2 · Cơ Học Đất · TS. Phạm Việt Anh · ĐHXD Hà Nội</p></div>
+  <div class="hdr-t"><h1>2.7 — Ôn Tập & Tổng Hợp Chương 2</h1><p>Chương 2 · Cơ Học Đất · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội</p></div>
   <div class="hdr-sv" id="hdr-sv">SV #–</div>
 </div></header>
 <div class="sv-box" id="sv-box"><div class="sv-av" id="sv-av">?</div><div><div class="sv-name" id="sv-name">–</div><div class="sv-meta" id="sv-meta">–</div></div></div>
@@ -273,10 +276,27 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   DANG_ID         : 'tonghop' — định danh trang ôn tập, tạo localStorage key
+   ANS             : lưu kết quả từng câu (null = chưa làm, true/false)
+   TOTAL_QUESTIONS : đếm sau genAll() → dùng trong updateProg
+   Không có _submitted (trang ôn tập không nộp bài chính thức)
+================================================================ */
+
 var DANG_ID = 'tonghop';
 var ANS = {};
 var TOTAL_QUESTIONS = 0;
 
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH DÙNG CHUNG
+   toast(msg, dur)  : hiện thông báo nổi, tự tắt sau dur ms
+   getSV()          : đọc thông tin sinh viên từ sessionStorage
+   seededRng(seed)  : LCG s = s*16807 % 2147483647, cho số [0,1) xác định theo STT
+   r1(v) / r2(v)    : làm tròn 1 / 2 chữ số thập phân
+   scrollNext()     : cuộn đến ô chưa làm tiếp theo
+   renderSV()       : hiển thị tên, MSSV, STT lên thanh header
+================================================================ */
 function toast(msg,dur){dur=dur||3000;var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove('show');},dur);}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return function(){s=s*16807%2147483647;return(s-1)/2147483646;};}
@@ -285,6 +305,13 @@ function r2(v){return Math.round(v*100)/100;}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp){inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});inp.focus();}}
 function renderSV(){var sv=getSV();if(!sv||!sv.name)return;var box=document.getElementById('sv-box');if(box)box.classList.add('show');var av=document.getElementById('sv-av');if(av)av.textContent=sv.name.charAt(0).toUpperCase();var nm=document.getElementById('sv-name');if(nm)nm.textContent=sv.name;var mt=document.getElementById('sv-meta');if(mt)mt.textContent='MSSV: '+sv.mssv+' · STT: '+sv.stt+' · '+sv.classId;var hs=document.getElementById('hdr-sv');if(hs)hs.textContent='SV #'+sv.stt;}
 
+/* ================================================================
+   KHỐI 3 — CHẤM CÂU HỎI & THEO DÕI TIẾN ĐỘ
+   chkFill(id,ans,tol)            : chấm ô số, class ok/no, gọi updateProg
+   pickMCQ(name,idx,correct,expText): chấm MCQ, lock, hiện giải thích
+   makeQ(id,label,ans,tol,unit)   : tạo HTML 1 ô nhập số + chip kết quả
+   updateProg(): cập nhật tiến độ (attempted/done/total), lưu 'prog_c2_tonghop'
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   var v=parseFloat(inp.value);
@@ -324,6 +351,12 @@ function updateProg(){
   localStorage.setItem('prog_c2_tonghop',JSON.stringify({done:done,total:total,attempted:attempted}));
 }
 
+/* ================================================================
+   KHỐI 4 — SINH BÀI TẬP TỔNG HỢP (genAll)
+   genAll(): khởi tạo 8 MCQ keys (q1–q8) + 1 bài số tổng hợp theo STT
+   Bài số: σoz (nền 2 lớp không MNN) + Δσz Boussinesq
+   TOTAL_QUESTIONS đếm SAU genAll() trong window.onload
+================================================================ */
 function genAll(){
   // Khởi tạo MCQ
   ['q1','q2','q3','q4','q5','q6','q7','q8'].forEach(function(k){ANS['mcq-'+k]=null;});
@@ -358,6 +391,11 @@ function genAll(){
   updateProg();
 }
 
+/* ================================================================
+   KHỐI 5 — KHỞI TẠO TRANG (window.onload)
+   Thứ tự: renderSV() → genAll() → đếm TOTAL_QUESTIONS
+   ⚠️ TOTAL_QUESTIONS phải đếm SAU genAll vì genAll mới tạo ANS keys
+================================================================ */
 window.onload=function(){
   renderSV();
   genAll();

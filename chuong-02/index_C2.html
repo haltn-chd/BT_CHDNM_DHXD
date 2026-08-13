@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{
   --P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;
   --A:#FF8F00;--Alt:#FFF8E1;--Adk:#E65100;
@@ -82,7 +85,7 @@ main{max-width:860px;margin:0 auto;padding:24px 20px 60px}
   <a href="../index.html"><i class="ti ti-arrow-left"></i> Trang chủ</a>
   <div class="hdr-title">
     <h1>Chương 2 — Ứng Suất Trong Đất</h1>
-    <p>NCM: Cơ Học Đất - Nền Móng · TS. Phạm Việt Anh · ĐHXD Hà Nội</p>
+    <p>NCM: Cơ Học Đất - Nền Móng · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội</p>
   </div>
   <div class="hdr-sv" id="hdr-sv">SV #–</div>
 </header>
@@ -158,7 +161,12 @@ main{max-width:860px;margin:0 auto;padding:24px 20px 60px}
 </main>
 
 <script>
-// ── Dữ liệu modules chương 2 ──
+/* ================================================================
+   KHỐI 1 — DỮ LIỆU MODULES CHƯƠNG 2
+   MODULES: mảng 6 dạng bài, mỗi phần tử có: id, file, icon, title, desc, badge
+   id khớp với localStorage key 'prog_c2_<id>' mà từng file dạng bài ghi
+   ĐỂ THÊM DẠNG BÀI MỚI: thêm object vào MODULES + tạo file HTML tương ứng
+================================================================ */
 var MODULES = [
   {
     id:'dang1', file:'2.1_DANG_1.html',
@@ -204,6 +212,13 @@ var MODULES = [
   },
 ];
 
+/* ================================================================
+   KHỐI 2 — ĐỌC TIẾN ĐỘ & HIỂN THỊ MODULE
+   getProg(id)       : đọc localStorage 'prog_c2_<id>', trả về {done,total}
+   renderModules()   : render card cho từng module trong MODULES
+   updateTotalProg() : tổng hợp tiến độ tất cả module, lưu 'prog_c2' cho trang chủ
+   ⚠️ 'prog_c2' được trang chủ (index.html) đọc để hiển thị tiến độ chương 2
+================================================================ */
 function getProg(id){
   // Key khớp với từng file dạng bài: localStorage.setItem('prog_c2_dang1',...)
   try{var v=localStorage.getItem('prog_c2_'+id);return v?JSON.parse(v):{done:0,total:0};}
@@ -241,6 +256,12 @@ function renderModules(){
   });
 }
 
+/* ================================================================
+   KHỐI 3 — ĐIỀU HƯỚNG & THÔNG TIN SINH VIÊN
+   navTo(e, file) : chuyển sang file dạng bài, lưu SV vào sessionStorage trước
+   getSV()        : đọc thông tin SV từ sessionStorage
+   renderSV()     : hiển thị tên, MSSV, STT lên thanh header
+================================================================ */
 function navTo(e,file){
   e.preventDefault();
   // Lưu SV vào sessionStorage để các file con đọc
@@ -276,6 +297,10 @@ function renderSV(){
   document.getElementById('hdr-sv').textContent='SV #'+sv.stt;
 }
 
+/* ================================================================
+   KHỐI 4 — KHỞI TẠO TRANG (window.onload)
+   Thứ tự: renderSV() → renderModules() → updateTotalProg()
+================================================================ */
 window.onload=function(){
   renderSV();
   renderModules();

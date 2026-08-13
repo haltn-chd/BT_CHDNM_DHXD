@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('no config')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -1187,20 +1190,72 @@ svg text{font-family:'Plus Jakarta Sans',sans-serif}
   </div>
 </div>
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC & ĐĂNG KÝ CÂU HỎI
+   ANS  : dict kết quả; null=chưa làm, true=đúng, false=sai
+   _sub : cờ đã nộp bài (ngăn nộp lần 2)
+   TQ   : tổng số câu = Object.keys(ANS).length sau khi đăng ký xong
+
+   Đăng ký 3 nhóm câu hỏi (key → null):
+   • MCQ lý thuyết: 6 câu (qa21..qb11) → key 'mcq-qa21'...
+   • Ghép phương án (Picker): 10 bài (b1..c6b) → key 'pk-b1'...
+   • Ô điền số: ~58 ô (nhóm a2..c6, mỗi ô 1 bước tính) → key 'f-a2-1'...
+================================================================ */
 var ANS={},_sub=false,TQ=0;
+// Đăng ký 6 câu MCQ lý thuyết (qa21..qb11) → key dạng 'mcq-qa21'
 ['qa21','qa22','qa23','qa31','qa32','qb11'].forEach(function(k){ANS['mcq-'+k]=null;});
+// Đăng ký 10 bài ghép phương án móng (b1,b2,b3,c1..c6b) → key dạng 'pk-b1'
 ['pk-b1','pk-b2','pk-b3','pk-c1','pk-c2','pk-c3','pk-c4','pk-c5','pk-c6a','pk-c6b'].forEach(function(k){ANS[k]=null;});
+// Đăng ký ~58 ô điền số (các nhóm a2..c6, mỗi ô là 1 bước tính) → key dạng 'f-a2-1'
 ['a2-1','a2-2','a2-3','a2-4','a2-5','a2-6','a3-1','a3-2','a3-3','a3-4','a3-5','b1-1','b1-2','b1-3','b1-4','b1-5','b1-6','b3-1','b3-2','b3-3','b3-4','b3-5','b3-6','b2-1','b2-2','b2-3','b2-4','b2-5','b2-6','c1-1','c1-2','c1-3','c1-4','c2-1','c2-2','c2-3','c2-4','c2-5','c2-6','c3-1','c3-2','c3-3','c3-4','c3-5','c3-6','c4-1','c4-2','c4-3','c5-1','c5-2','c5-3','c5-4','c6-1','c6-2','c6-3','c6-4','c6-5','c6-6'].forEach(function(k){ANS['f-'+k]=null;});
 
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH CHẤM BÀI
+   gSV()       : đọc thông tin SV từ sessionStorage 'ncm_sv'
+   tog(id)     : mở/đóng accordion bài tập (body + header + chevron)
+   cf(key, correct, tol) : kiểm tra ô điền số; dung sai tol
+                 → đánh dấu ok/no, ghi ANS['f-key'], gọi up()
+   cfs(key, correct)     : kiểm tra ô select/dropdown; so sánh
+                 giá trị chọn với đáp án đúng → ANS['f-key']
+   pm(id, picked, correct): chấm câu MCQ lý thuyết; tô màu
+                 ok (xanh)/no (đỏ)/rok (reveal đáp án đúng)
+                 → lưu ANS['mcq-id'], gọi up()
+================================================================ */
 function gSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function tog(id){var b=document.getElementById('bd-'+id),h=b.previousElementSibling,c=document.getElementById('cv-'+id);var op=b.classList.contains('open');b.classList.toggle('open',!op);h.classList.toggle('open',!op);c.classList.toggle('open',!op);}
 function cf(key,correct,tol){if(_sub)return;var inp=document.getElementById('f-'+key),fb=document.getElementById('fb-'+key);if(!inp)return;var v=parseFloat(inp.value);if(isNaN(v)){fb.textContent='Nhập số!';fb.style.color='var(--R)';return;}var ok=Math.abs(v-correct)<=tol;inp.classList.toggle('ok',ok);inp.classList.toggle('no',!ok);fb.textContent=ok?'✓ Đúng!':'✗ Sai (≈'+correct+')';fb.style.color=ok?'var(--G)':'var(--R)';ANS['f-'+key]=ok;up();}
 function cfs(key,correct){if(_sub)return;var sel=document.getElementById('f-'+key),fb=document.getElementById('fb-'+key);if(!sel)return;var ok=(sel.value===correct);fb.textContent=ok?'✓ Đúng!':'✗ Sai';fb.style.color=ok?'var(--G)':'var(--R)';ANS['f-'+key]=ok;up();}
 function pm(id,picked,correct){if(ANS['mcq-'+id]!==null&&ANS['mcq-'+id]!==undefined)return;document.querySelectorAll('[id^="mo-'+id+'-"]').forEach(function(el,i){el.onclick=null;if(i===picked&&picked===correct)el.classList.add('ok');else if(i===picked)el.classList.add('no');else if(i===correct)el.classList.add('rok');});var e=document.getElementById('me-'+id);if(e){e.classList.add('show');e.classList.add(picked===correct?'ok-e':'no-e');}ANS['mcq-'+id]=(picked===correct);up();}
+/* ================================================================
+   KHỐI 3 — CẬP NHẬT TIẾN ĐỘ
+   up(): đếm attempted/done từ ANS, cập nhật thanh #pfill/#ptxt,
+         lưu localStorage 'prog_c8_83' = {done, total, attempted},
+         cập nhật nút Nộp bài (xanh nếu ≥ MIN_ATTEMPT_PCT %)
+================================================================ */
 function up(){var at=0,dn=0,tot=TQ||Object.keys(ANS).length;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,dp=tot?Math.round(dn/tot*100):0;document.getElementById('pfill').style.width=ap+'%';document.getElementById('ptxt').textContent='Đã làm: '+at+'/'+tot+' ('+ap+'%) · Đúng: '+dn+' ('+dp+'%)';document.getElementById('np').textContent=at+'/'+tot;document.getElementById('hprog').textContent=at+' / '+tot;try{localStorage.setItem('prog_c8_83',JSON.stringify({done:dn,total:tot,attempted:at}));}catch(e){}if(!_sub){var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;var btn=document.getElementById('btn-nop');if(btn){var rdy=(ap>=mp&&at>0);btn.style.background=rdy?'rgba(46,125,50,.7)':'rgba(150,150,150,.35)';btn.style.borderColor=rdy?'rgba(165,214,167,.6)':'rgba(200,200,200,.4)';btn.innerHTML=(rdy?'✅':'🔒')+' Nộp bài <span style="font-size:10px;opacity:.8">('+ap+'%/'+mp+'%)</span>';}}}
-function sub(){var sv=gSV();if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập!');return;}if(_sub)return;var tot=TQ||Object.keys(ANS).length,at=0,dn=0;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,sc=tot?Math.round(dn/tot*100):0;if(at===0){alert('⚠️ Chưa làm câu nào!');return;}var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;if(ap<mp){alert('⚠️ Cần làm tối thiểu '+mp+'%!');return;}var wu=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';fetch(wu,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,chapterId:'C8-83-PhuongAnMong',score:sc,correct:dn,total:tot,duration:0})}).then(function(r){return r.json();}).then(function(d){if(d.ok){_sub=true;var btn=document.getElementById('btn-nop');if(btn){btn.innerHTML='✓ Đã nộp ('+sc+'%)';btn.disabled=true;btn.style.background='rgba(46,125,50,.5)';}alert('✅ Nộp thành công! '+dn+'/'+tot);}else alert('❌ '+(d.error||'Lỗi'));}).catch(function(err){alert('❌ '+err.message);});}
 
-/* ── Picker ghép phương án ── */
+/* ================================================================
+   KHỐI 4 — NỘP BÀI LÊN SERVER
+   sub(): POST kết quả lên Cloudflare Worker
+   chapterId : 'C8-83-PhuongAnMong'
+   Kiểm tra: đã đăng nhập, chưa nộp, đã làm tối thiểu MIN_ATTEMPT_PCT%
+================================================================ */
+// sub (submitResult): gửi điểm lên Worker; chapterId='C8-83-PhuongAnMong'
+function sub(){var sv=gSV();if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập!');return;}if(_sub)return;var tot=TQ||Object.keys(ANS).length,at=0,dn=0;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,sc=tot?Math.round(dn/tot*100):0;if(at===0){alert('⚠️ Chưa làm câu nào!');return;}var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;if(ap<mp){alert('⚠️ Cần làm tối thiểu '+mp+'%!');return;}var wu=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';fetch(wu,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,chapterId:'C8-83-PhuongAnMong',score:sc,correct:dn,total:tot,duration:0})}).then(function(r){return r.json();}).then(function(d){if(d.ok){_sub=true;var btn=document.getElementById('btn-nop');if(btn){btn.innerHTML='✓ Đã nộp ('+sc+'%)';btn.disabled=true;btn.style.background='rgba(46,125,50,.5)';}alert('✅ Nộp thành công! '+dn+'/'+tot);}else alert('❌ '+(d.error||'Lỗi'));}).catch(function(err){alert('❌ '+err.message);});}
+
+/* ================================================================
+   KHỐI 5 — PICKER GHÉP PHƯƠNG ÁN MÓNG
+   window.PKC : dict định nghĩa đáp án cho từng bài ghép phương án
+                Key = bid (b1, b2...); Value = {groups:[{id, label, correct[]}]}
+   pkPick(bid, grp, val) : toggle chọn option val trong nhóm grp của bài bid
+                data-multi='0' → single-select (bỏ chọn option cũ)
+                data-multi='1' → multi-select (chọn nhiều)
+                Sau khi chọn → gọi pkBuild để hiển thị tóm tắt
+   pkBuild(bid)  : tổng hợp lựa chọn đang có (class .sel); hiện #pkr-bid
+                   khi tất cả nhóm đã có ít nhất 1 lựa chọn
+   pkCheck(bid)  : so sánh lựa chọn với đáp án trong PKC[bid];
+                   tô ok/no, lưu ANS['pk-bid'], gọi up()
+================================================================ */
 window.PKC = {};
 function pkPick(bid, grp, val) {
   if (_sub) return;
@@ -1258,6 +1313,12 @@ function pkCheck(bid) {
   ANS['pk-' + bid] = allOk;
   up();
 }
+/* ================================================================
+   KHỐI 6 — KHỞI TẠO TRANG
+   1. Hiển thị tên SV/STT từ sessionStorage lên header/badge
+   2. TQ = Object.keys(ANS).length (số câu đã đăng ký ở KHỐI 1)
+   3. Gọi up() lần đầu để khởi tạo thanh tiến độ
+================================================================ */
 window.onload=function(){var sv=gSV();if(sv&&sv.name){document.getElementById('svd').textContent=sv.name+' — STT: '+sv.stt;document.getElementById('svch').textContent='#'+sv.stt;document.getElementById('svbh').textContent='SV #'+sv.stt;}else{document.getElementById('svd').textContent='Chưa đăng nhập';}TQ=Object.keys(ANS).length;up();};
 </script>
 </body>

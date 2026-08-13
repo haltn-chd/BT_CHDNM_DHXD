@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính (#1565C0), --Pdk/Plt=tối/nhạt; --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --Alt=nền vàng nhạt (cảnh báo nhẹ / earth-box)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -289,7 +293,21 @@ table.tbl tr:nth-child(even) td{background:#F0F7FF}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS: object {id → true/false/null} ghi nhận kết quả từng câu
+   _submitted: cờ khóa sau khi nộp bài (chống nộp nhiều lần)
+   TOTAL_QUESTIONS: đếm sau genA() + genBC() trong window.onload
+================================================================ */
 var ANS={}, _submitted=false, TOTAL_QUESTIONS=0;
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH
+   r1/r2/r3(v): làm tròn 1/2/3 chữ số thập phân
+   deg2rad(d): đổi góc độ sang radian (dùng tính lún đàn hồi)
+   seededRng(seed): sinh số ngẫu nhiên có hạt giống LCG
+     s = (s*9301 + 49297) % 233280  (khác công thức ch2/ch3!)
+   getSV(): đọc thông tin sinh viên từ sessionStorage
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -298,6 +316,12 @@ function seededRng(seed){var s=(seed%233280+233280)%233280||1;return function(){
 
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
+/* ================================================================
+   KHỐI 3 — BẢNG TRA ω & UI THU GỌN
+   OMEGA_LB[6]: mảng l/b; OMEGA_W[6]: hệ số biến dạng ω tương ứng
+   getOmega(lb): nội suy tuyến tính ω theo tỉ lệ l/b móng
+   togS(hd): toggle mở/đóng khối hướng dẫn (thêm/xóa class open)
+================================================================ */
 var OMEGA_LB=[1,1.5,2,3,5,10];
 var OMEGA_W=[0.88,1.08,1.22,1.44,1.68,2.12];
 function getOmega(lb){
@@ -313,6 +337,15 @@ function getOmega(lb){
 
 function togS(hd){hd.classList.toggle('open');hd.nextElementSibling.classList.toggle('open');}
 
+/* ================================================================
+   KHỐI 4 — LOGIC CHẤM & NỘP BÀI
+   chkFill(id,ans,tol): chấm ô nhập số, cập nhật ANS + giao diện
+   pickMCQ(name,picked,correct,expText): chấm câu trắc nghiệm
+   updateProg(): tính % hoàn thành, lưu 'prog_c4_41' localStorage
+   makeQ(id,label,ans,tol,unit): sinh HTML ô nhập + đăng ký ANS
+   submitResult(): nộp bài — gửi POST chapter:'4.1'
+   ⚠️ updateProg chỉ lưu done/total (không có attempted như ch2/ch3)
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);
   var chip=document.getElementById('ck-'+id);
@@ -376,6 +409,16 @@ function submitResult(){
     .catch(function(){alert('Lỗi kết nối. Vui lòng thử lại.');});
 }
 
+/* ================================================================
+   KHỐI 5 — SINH SỐ LIỆU NHÓM A (6 bài — lún đàn hồi móng nông)
+   genA(stt): 6 IIFE độc lập, seed theo stt sinh viên
+     A1: Tính S — móng đơn    S=(1−μ²)·pgl·b·ω/E₀, ω tra bảng l/b
+     A2: Tính S — móng băng   S=(1−μ²)·pgl·b·1.0/E₀, ωb=1.0
+     A3: Tính E₀ — móng đơn   E₀=(1−μ²)·pgl·b·ω/S
+     A4: Tính E₀ — móng băng  E₀=(1−μ²)·pgl·b·1.0/S
+     A5: Tính pgl — móng đơn  pgl=S·E₀/[(1−μ²)·b·ω]
+     A6: Tính pgl — móng băng pgl=S·E₀/[(1−μ²)·b·1.0]
+================================================================ */
 /* ════ SINH SỐ LIỆU NHÓM A ════ */
 function genA(stt){
   var lbOpts=[1,1.5,2,3,5],wOpts=[0.88,1.08,1.22,1.44,1.68];
@@ -525,6 +568,14 @@ function genA(stt){
   })();
 }
 
+/* ================================================================
+   KHỐI 6 — SINH THẺ B & C (6 dạng — lún đàn hồi)
+   CFG[6]: config {id, title, type, fml} cho từng dạng bài B/C
+   genBC(stt): render HTML shell tất cả thẻ B/C vào #b-cards/#c-cards
+   genOne(id,type,stt,s1,s2,lbOpts,wOpts): sinh số liệu 1 thẻ
+     Các type: tinhS_don, tinhS_bang, tinhE_don, tinhE_bang,
+                tinhP_don, tinhP_bang
+================================================================ */
 /* ════ SINH SỐ LIỆU NHÓM B & C ════ */
 var CFG=[
   {id:'1',title:'Tính S — Móng đơn',   type:'tinhS_don',
@@ -622,6 +673,13 @@ function genOne(id,type,stt,s1,s2,lbOpts,wOpts){
   }
 }
 
+/* ================================================================
+   KHỐI 7 — KHỞI TẠO & WINDOW.ONLOAD
+   Ghi timestamp bắt đầu làm bài vào window._startTime
+   Đăng ký 3 câu MCQ (mcq-q1/q2/q3) vào ANS với giá trị null
+   window.onload: đọc SV, gọi genA(stt), genBC(stt),
+     đếm TOTAL_QUESTIONS = Object.keys(ANS).length
+================================================================ */
 window._startTime=Date.now();
 ['mcq-q1','mcq-q2','mcq-q3'].forEach(function(k){ANS[k]=null;});
 

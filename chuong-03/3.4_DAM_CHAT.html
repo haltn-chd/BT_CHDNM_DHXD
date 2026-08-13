@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -253,9 +256,25 @@ table.tbl .rowlabel{background:var(--Plt);font-weight:700;color:var(--Pdk)}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS            : lưu kết quả từng câu (null = chưa làm, true/false)
+   _submitted     : cờ ngăn nộp bài nhiều lần
+   TOTAL_QUESTIONS: đếm sau genA()+genBC() trong window.onload
+================================================================ */
+
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
+
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH DÙNG CHUNG
+   r1/r2/r3(v)    : làm tròn 1/2/3 chữ số thập phân
+   seededRng(seed): LCG s = s*16807 % 2147483647, cho số [0,1) theo STT
+   getSV()        : đọc thông tin SV từ sessionStorage
+   scrollNext()   : cuộn đến ô chưa làm tiếp theo
+   (ch3 không có toast/renderSV — dùng alert() và sv-display trực tiếp)
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -263,6 +282,13 @@ function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return func
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp)inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});}
 
+/* ================================================================
+   KHỐI 3 — CHẤM CÂU HỎI & THEO DÕI TIẾN ĐỘ
+   chkFill(id,ans,tol)              : chấm ô số, class ok/no, gọi updateProg
+   pickMCQ(name,picked,correct,expText): chấm MCQ, lock, hiện giải thích
+   makeQ(id,label,ans,tol,unit)     : tạo HTML 1 ô nhập số + chip kết quả
+   updateProg(): cập nhật tiến độ (attempted/done/total), lưu 'prog_c3_34'
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -310,6 +336,12 @@ function updateProg(){
     }
   }
 }
+
+/* ================================================================
+   KHỐI 4 — NỘP BÀI (submitResult)
+   submitResult(): kiểm tra MIN_ATTEMPT_PCT, gửi lên Cloudflare Worker
+   chapterId: 'C3-34-DamChat' — phân loại kết quả trên server
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -322,7 +354,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C3-34-DamChat',score:scorePct,correct:done,total:total,duration:0})
@@ -339,6 +371,12 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 5 — HÀM PHỤ TRỢ (TN đầm chặt Proctor)
+   genProctor(rng)  : sinh bảng TN Proctor 5 điểm, đỉnh γk,max tại điểm giữa
+                      trả về {w[], gk[], gtn[], wopt, gkmax}
+   tableProctor(d)  : render bảng HTML w(%) và γtn từ kết quả genProctor
+================================================================ */
 // Sinh bảng TN Proctor 5 điểm, có đỉnh rõ ràng tại 1 điểm giữa
 function genProctor(rng){
   var wopt=r1(12+rng()*8); // 12-20%
@@ -367,6 +405,14 @@ function tableProctor(d){
     +'</table></div>';
 }
 
+/* ================================================================
+   KHỐI 6 — SINH BÀI A (genA)
+   genA(stt): sinh 4 bài đầm chặt theo STT, mỗi bài là 1 IIFE
+   A1: Quy đổi γk từ γtn, w đơn lẻ — γk = γtn/(1+0.01w)
+   A2: Đọc bảng TN Proctor → tính γk mỗi lần → tìm γk,max và wopt
+   A3: Hệ số đầm chặt K = γk/γk,max → kết luận đạt/chưa đạt [K]
+   A4: Tính γk trên đường bão hòa S=100% — γk,bh = Δ·γw/(1+0.01·w·Δ)
+================================================================ */
 function genA(stt){
   // A1: Quy đổi gamma_k từ TN đơn lẻ
   (function(){
@@ -441,6 +487,13 @@ function genA(stt){
   })();
 }
 
+/* ================================================================
+   KHỐI 7 — SINH BÀI B/C (genBC + genOne)
+   genBC(stt): render 4 cặp B/C cards, gọi genOne cho từng bài
+   genOne(id,type,stt,s1,s2): điền đề bài vào 1 card
+   4 loại: gk, proctor, K, bh
+   Bài B: có công thức gợi ý · Bài C: tự nhận biết loại bài
+================================================================ */
 function genBC(stt){
   var CFG=[
     {id:'1',title:'Quy đổi γ<sub>k</sub> từ TN đơn lẻ',fml:'γ<sub>k</sub> = γ<sub>tn</sub>/(1+0.01w)',type:'gk'},
@@ -508,6 +561,11 @@ function genOne(id,type,stt,s1,s2){
   }
 }
 
+/* ================================================================
+   KHỐI 8 — KHỞI TẠO TRANG (window.onload)
+   Thứ tự: đọc SV → khởi tạo 2 MCQ (lt1, lt2) → genA(stt) → genBC(stt)
+           → đếm TOTAL_QUESTIONS → set nút nộp → updateProg
+================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

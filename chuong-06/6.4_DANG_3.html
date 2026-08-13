@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -308,9 +308,25 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — Biến toàn cục
+   ANS            : kết quả từng câu (null=chưa làm · true=đúng · false=sai)
+   _submitted     : cờ ngăn nộp bài nhiều lần
+   TOTAL_QUESTIONS: tổng số câu
+   ================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
+
+/* ================================================================
+   KHỐI 2 — Hàm tiện ích
+   r1/r2/r3()     : làm tròn 1/2/3 chữ số thập phân
+   seededRng(seed): LCG tất định — cùng seed → cùng dãy số (Park-Miller)
+   getSV()        : đọc {name, mssv, stt, classId} từ sessionStorage 'ncm_sv'
+   scrollNext()   : cuộn đến ô nhập đầu tiên chưa đúng
+   deg2rad(d)     : chuyển độ → radian
+   calcKb(phi)    : hệ số áp lực bị động Kb = tan²(45° + φ/2)
+   ================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -320,6 +336,12 @@ function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp
 function deg2rad(d){return d*Math.PI/180}
 function calcKb(phi){return r3(Math.pow(Math.tan(deg2rad(45+phi/2)),2));}
 
+/* ================================================================
+   KHỐI 3 — Chấm điểm và tiến độ
+   chkFill(id,ans,tol): so sánh đáp số ô nhập với đáp án, tô xanh/đỏ
+   makeQ(id,…)        : tạo HTML hàng nhập đáp số, đăng ký key vào ANS
+   updateProg()       : cập nhật thanh tiến độ, lưu localStorage 'prog_c6_64', mở nút Nộp
+   ================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -357,6 +379,12 @@ function updateProg(){
     }
   }
 }
+/* ================================================================
+   KHỐI 5 — Nộp kết quả lên server
+   submitResult()  : POST {chapterId='C6-64-ApLucBiDong', score%, đúng/tổng} lên Worker
+   WORKER_URL      : endpoint Cloudflare Worker (từ config.js)
+   MIN_ATTEMPT_PCT : % tối thiểu phải làm trước khi nộp (từ config.js)
+   ================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -369,7 +397,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C6-64-ApLucBiDong',score:scorePct,correct:done,total:total,duration:0})
@@ -386,6 +414,12 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 4 — Sinh số liệu theo STT sinh viên
+   genA(stt)  : nhóm A có gợi ý — A1-A9: Kb, cường độ và tổng áp lực bị động
+                (đất rời, dính, nhiều lớp, có tải q)
+   genBC(stt) : nhóm B (có công thức sẵn) và C (tự nhận biết)
+   ================================================================ */
 function genA(stt){
   // A1: Cường độ, đất rời
   (function(){
@@ -727,6 +761,12 @@ function genOne(id,type,stt,s1,s2){
   }
 }
 
+/* ================================================================
+   Khởi tạo trang (window.onload)
+   1. Đọc SV từ sessionStorage, hiển thị tên và STT lên header
+   2. Gọi genA(stt) và genBC(stt) để sinh đề bài áp lực bị động
+   3. Đếm TOTAL_QUESTIONS, khởi tạo nút Nộp bài
+   ================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

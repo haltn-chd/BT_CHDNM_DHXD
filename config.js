@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════
 //  config.js — Cơ Học Đất · Nền Móng
 //  ► GV chỉ cần sửa file này → git commit → git push
 //  ► Tất cả SV thấy ngay (~1 phút sau khi push)
@@ -6,11 +6,37 @@
 // ═══════════════════════════════════════════════════════
 
 // ── Cloudflare Worker URL (nhận kết quả → Google Sheet) ─
-window.WORKER_URL = "https://dqt-chdnm.phamvietanh158.workers.dev";
+window.WORKER_URL = "https://dqt-chdnm.bmchdnm.workers.dev";  // ← cập nhật nếu đổi Worker
 
 // ── % số câu phải LÀM (không cần đúng) để được nộp bài ─
 //    Test: 5   |   Chính thức: 70 hoặc 80
 window.MIN_ATTEMPT_PCT = 80;
+
+// ── Danh sách lớp (hiện trong dropdown đăng ký của SV) ──────────────
+//    id   = classId gửi lên Worker → phải khớp ALLOWED_CLASSES trong GAS_V4.js
+//    name = tên hiển thị cho sinh viên chọn
+window.CLASS_LIST = [
+  { id: "KT1",  name: "KT1"  },
+  { id: "KT2",  name: "KT2"  },
+  { id: "KT3",  name: "KT3"  },
+  { id: "KT4",  name: "KT4"  },
+  { id: "KT5",  name: "KT5"  },
+  { id: "KT6",  name: "KT6"  },
+  { id: "KT7",  name: "KT7"  },
+  { id: "KT8",  name: "KT8"  },
+  { id: "KT9",  name: "KT9"  },
+  { id: "KT10", name: "KT10" },
+  { id: "BDS1", name: "BDS1" },
+  { id: "BDS2", name: "BDS2" },
+  { id: "QD1",  name: "QD1"  },
+  { id: "QD2",  name: "QD2"  },
+  { id: "KTE",  name: "KTE"  },
+  { id: "CDQ1", name: "CDQ1" },
+  { id: "CDQ2", name: "CDQ2" },
+  { id: "NV01", name: "NV01" },
+  { id: "NV02", name: "NV02" },
+  { id: "NV03", name: "NV03" },
+];
 
 window.CHAPTER_SCHEDULE = {
 

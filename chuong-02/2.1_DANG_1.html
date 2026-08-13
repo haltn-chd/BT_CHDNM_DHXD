@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -12,6 +12,9 @@
    _shared.css — Chương 2 · Cơ Học Đất
    Copy <style> này vào đầu mỗi file con
    ════════════════════════════════════════ */
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{
   --P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--Pmd:#1976D2;
   --A:#FF8F00;--Alt:#FFF8E1;--Adk:#E65100;
@@ -142,7 +145,7 @@ table.tbl tr:nth-child(even) td{background:#F0F7FF}
   <a href="index_C2.html" class="hdr-back"><i class="ti ti-arrow-left"></i> Ch&#432;&#417;ng 2</a>
   <div class="hdr-t">
     <h1>D&#7841;ng 1 &mdash; &#7912;ng Su&#7845;t B&#7843;n Th&#226;n (Kh&#244;ng MNN)</h1>
-    <p>Ch&#432;&#417;ng 2 &middot; C&#417; H&#7885;c &#272;&#7845;t &middot; TS. Ph&#7841;m Vi&#7879;t Anh &middot; &#272;HXD H&#224; N&#7897;i</p>
+    <p>Ch&#432;&#417;ng 2 &middot; C&#417; H&#7885;c &#272;&#7845;t &middot; B&#7897; m&ocirc;n C&#417; h&#7885;c &#273;&#7845;t &middot; NM &middot; &#272;HXD H&#224; N&#7897;i</p>
   </div>
   <div class="hdr-sv" id="hdr-sv">SV #&ndash;</div>
 </div></header>
@@ -561,12 +564,26 @@ table.tbl tr:nth-child(even) td{background:#F0F7FF}
 
 <script>
 
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   DANG_ID         : 'dang1' — định danh dạng bài, tạo localStorage key
+   ANS             : lưu kết quả từng câu (null = chưa làm, true/false)
+   _submitted      : cờ ngăn nộp bài lần 2
+   TOTAL_QUESTIONS : đếm sau genAll() → dùng trong updateProg
+================================================================ */
+
 var DANG_ID = 'dang1';
 var ANS = {};
 var _submitted = false;
 var TOTAL_QUESTIONS = 0; // đếm sau genAll()
 
-/* ── SUBMIT KẾT QUẢ → WORKER → GOOGLE SHEET ── */
+/* ================================================================
+   KHỐI 2 — NỘP BÀI LÊN CLOUDFLARE WORKER
+   ⚠️ File 2.1 bất thường: submitResult() đứng TRƯỚC shared functions
+   submitResult(): kiểm tra điều kiện → POST kết quả → Worker → Google Sheet
+   chapterId: 'C2-Dang1'
+   ⚠️ localStorage key: 'prog_c2_dang1' — index_C2.html đọc key này
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){toast('⚠️ Không tìm thấy thông tin sinh viên. Vui lòng về trang chủ đăng nhập lại.');return;}
@@ -584,7 +601,7 @@ function submitResult(){
   if(attempted===0){toast('⚠️ Chưa làm câu nào!');return;}
 
   // Đọc config từ config.js (server) — có tác dụng trên máy SV
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
 
   // Chặn nếu chưa làm đủ %
@@ -632,7 +649,16 @@ function submitResult(){
   });
 }
 
-/* ── SHARED FUNCTIONS ── */
+/* ================================================================
+   KHỐI 3 — HÀM TIỆN ÍCH DÙNG CHUNG
+   toast(msg, dur)  : hiện thông báo nổi (thay cho alert), tự tắt sau dur ms
+   getSV()          : đọc thông tin sinh viên từ sessionStorage
+   seededRng(seed)  : sinh số ngẫu nhiên deterministic theo STT SV
+   r1(v), r2(v)     : làm tròn 1 và 2 chữ số thập phân
+   togS(hd)         : thu gọn/mở rộng accordion section
+   scrollNext()     : cuộn đến câu chưa làm tiếp theo
+   renderSV()       : hiển thị tên, MSSV, STT lên thanh header
+================================================================ */
 function toast(msg,dur){dur=dur||3000;var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove('show');},dur);}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return function(){s=s*16807%2147483647;return(s-1)/2147483646;};}
@@ -641,6 +667,16 @@ function r2(v){return Math.round(v*100)/100;}
 function togS(hd){hd.classList.toggle('open');hd.nextElementSibling.classList.toggle('open');}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp){inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});inp.focus();}}
 function renderSV(){var sv=getSV();if(!sv||!sv.name)return;var box=document.getElementById('sv-box');if(box)box.classList.add('show');var av=document.getElementById('sv-av');if(av)av.textContent=sv.name.charAt(0).toUpperCase();var nm=document.getElementById('sv-name');if(nm)nm.textContent=sv.name;var mt=document.getElementById('sv-meta');if(mt)mt.textContent='MSSV: '+sv.mssv+' · STT: '+sv.stt+' · '+sv.classId;var hs=document.getElementById('hdr-sv');if(hs)hs.textContent='SV #'+sv.stt;}
+
+/* ================================================================
+   KHỐI 4 — CHẤM CÂU HỎI & CẬP NHẬT TIẾN ĐỘ
+   chkFill(id,ans,tol)             : chấm ô nhập số, gọi updateProg()
+   pickMCQ(name,idx,correct,exp)   : chấm MCQ, lock sau khi chọn
+   updateProg()                    : cập nhật thanh tiến độ + nút nộp
+                                     localStorage key: 'prog_c2_dang1'
+   makeQ(id,label,ans,tol,unit)    : tạo HTML cho 1 ô nhập số
+   makeLopMCQ(pid,opts,correct,exp): MCQ chọn vị trí lớp đất (TRÊN/DƯỚI MNN)
+================================================================ */
 
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);
@@ -713,7 +749,12 @@ function makeLopMCQ(pid, opts, correct, expText) {
   ANS['mcq-'+pid] = null;
 }
 
-/* ── RENDER CARDS B & C ── */
+/* ================================================================
+   KHỐI 5 — TẠO HTML CARD NHÓM B VÀ C
+   renderBCards(bcfg): tạo HTML card cho nhóm B (có công thức, cần tính toán)
+   renderCCards(ccfg): tạo HTML card cho nhóm C (tự nhận biết lớp đất/vị trí)
+   Cả hai hàm được gọi trong genAll() sau khi định nghĩa cấu hình BCFG/CCFG
+================================================================ */
 function renderBCards(bcfg){
   var html='';
   bcfg.forEach(function(b){
@@ -745,9 +786,15 @@ function renderCCards(ccfg){
   document.getElementById('c-cards').innerHTML=html;
 }
 
-/* ══════════════════════════════════════
-   GENALL — Sinh số liệu theo STT
-══════════════════════════════════════ */
+/* ================================================================
+   KHỐI 6 — SINH BÀI TẬP THEO STT (genAll)
+   genAll(): sinh đề bài ngẫu nhiên deterministic theo STT SV
+   - Nhóm A: bài tập điền số (seededRng → giá trị duy nhất mỗi SV)
+   - Nhóm B: bài có công thức đã xác định (renderBCards + forEach tính)
+   - Nhóm C: bài tự nhận biết lớp đất/vị trí (renderCCards + forEach tính)
+   Mỗi bài là IIFE (function(){...})() độc lập — sửa 1 bài không ảnh hưởng bài khác
+   ĐỂ THÊM BÀI MỚI: thêm 1 IIFE mới với seededRng seed khác
+================================================================ */
 function genAll(){
   var sv=getSV();
   var stt=(sv&&sv.stt)?parseInt(sv.stt):1;
@@ -1025,6 +1072,11 @@ function genAll(){
 
   updateProg();
 }
+
+/* ================================================================
+   KHỐI 7 — KHỞI TẠO TRANG (window.onload)
+   Thứ tự: renderSV() → genAll() → đếm TOTAL_QUESTIONS → set nhãn nút nộp
+================================================================ */
 
 window.onload = function(){
   renderSV();

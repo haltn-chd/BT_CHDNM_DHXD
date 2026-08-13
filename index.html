@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -296,7 +296,7 @@ footer b { color:rgba(255,255,255,.9); }
             </div>
             <div class="field" style="margin-bottom:12px">
               <label>Tên hiển thị trên header</label>
-              <input type="text" id="cfg-teacher" placeholder="TS. Phạm Việt Anh · ĐHXD Hà Nội" />
+              <input type="text" id="cfg-teacher" placeholder="Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội" />
             </div>
             <div class="field" style="margin-bottom:14px">
               <label>Đổi mật khẩu Admin</label>
@@ -323,7 +323,7 @@ footer b { color:rgba(255,255,255,.9); }
     </div>
     <div class="hdr-right">
       <div id="timer-badge">00:00</div>
-      <div class="hdr-meta">TS. Phạm Việt Anh<br><span style="color:rgba(255,255,255,.4)">Bộ môn Cơ học đất - Nền móng</span></div>
+      <div class="hdr-meta">Bộ môn CHDNM<br><span style="color:rgba(255,255,255,.4)">Bộ môn Cơ học đất - Nền móng</span></div>
       <button class="btn-admin" onclick="ADMIN.open()"><i class="ti ti-settings"></i> Admin</button>
     </div>
   </div>
@@ -369,7 +369,7 @@ footer b { color:rgba(255,255,255,.9); }
 <!-- INFO ROW -->
 <div class="info-row hidden chapter-section" id="info-row">
   <div class="info-chip"><i class="ti ti-building-bank"></i><span>Trường:</span> <b>ĐHXD Hà Nội</b></div>
-  <div class="info-chip"><i class="ti ti-user-check"></i><span>Giảng viên:</span> <b>TS. Phạm Việt Anh</b></div>
+  <div class="info-chip"><i class="ti ti-user-check"></i><span>Giảng viên:</span> <b>Bộ môn CHDNM</b></div>
   <div class="info-chip"><i class="ti ti-file-certificate"></i><span>Tiêu chuẩn:</span> <b>TCVN 9362:2012 · 10304:2014</b></div>
   <div class="info-chip"><i class="ti ti-clock"></i><span>Học phần:</span> <b>LT 36h · BT 12h · TN 6h</b></div>
 </div>
@@ -439,7 +439,7 @@ footer b { color:rgba(255,255,255,.9); }
 
 <!-- FOOTER -->
 <footer>
-  <b>Cơ Học Đất · Nền Móng</b> — Bài Tập Online · TS. Phạm Việt Anh · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội<br>
+  <b>Cơ Học Đất · Nền Móng</b> — Bài Tập Online · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội<br>
   <span style="margin-top:4px;display:block">54 giờ · 3 tín chỉ · 4 CLO · TCVN 9362:2012 · TCVN 10304:2014 · TCVN 9351:2012</span>
 </footer>
 
@@ -597,17 +597,33 @@ var TIMER = {
 // ════════════════════════════════════════
 var CFG_KEY='ncm_cfg_v1';
 var DEF_CFG={
-  workerUrl:'https://dqt-chdnm.phamvietanh158.workers.dev',
+  workerUrl:'https://dqt-chdnm.bmchdnm.workers.dev',
   minAttemptPct:5,
-  teacher:'TS. Phạm Việt Anh · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội',
+  teacher:'Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội',
   adminPw:'admin2024',
   showFeedback:false,
   showScore:true,
   classes:[
-    {id:'69KT3',name:'Lớp 69KT3'},
-    {id:'69KT4',name:'Lớp 69KT4'},
-    {id:'69KT1',name:'Lớp 69KT1'},
-    {id:'69KT2',name:'Lớp 69KT2'},
+    {id:'KT1',  name:'KT1'},
+    {id:'KT2',  name:'KT2'},
+    {id:'KT3',  name:'KT3'},
+    {id:'KT4',  name:'KT4'},
+    {id:'KT5',  name:'KT5'},
+    {id:'KT6',  name:'KT6'},
+    {id:'KT7',  name:'KT7'},
+    {id:'KT8',  name:'KT8'},
+    {id:'KT9',  name:'KT9'},
+    {id:'KT10', name:'KT10'},
+    {id:'BDS1', name:'BDS1'},
+    {id:'BDS2', name:'BDS2'},
+    {id:'QD1',  name:'QD1'},
+    {id:'QD2',  name:'QD2'},
+    {id:'KTE',  name:'KTE'},
+    {id:'CDQ1', name:'CDQ1'},
+    {id:'CDQ2', name:'CDQ2'},
+    {id:'NV01', name:'NV01'},
+    {id:'NV02', name:'NV02'},
+    {id:'NV03', name:'NV03'},
   ],
   schedule:{
     c0:{open:null,close:null,minPct:60,active:true},
@@ -810,11 +826,15 @@ var APP = {
   },
 
   populateClasses:function(){
-    var cfg=loadCfg();
+    // Ưu tiên CLASS_LIST từ config.js (sửa 1 chỗ → tất cả SV thấy ngay)
+    // Fallback: cfg.classes từ localStorage / DEF_CFG
+    var list=(window.CLASS_LIST&&window.CLASS_LIST.length)
+      ? window.CLASS_LIST
+      : (loadCfg().classes||[]);
     var sel=document.getElementById('f-class');
     var cur=sel.value;
     sel.innerHTML='<option value="">— Chọn lớp của bạn —</option>';
-    (cfg.classes||[]).forEach(function(c){
+    list.forEach(function(c){
       var o=document.createElement('option');
       o.value=c.id;o.textContent=c.name||c.id;
       if(c.id===cur)o.selected=true;

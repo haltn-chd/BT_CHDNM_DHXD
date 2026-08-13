@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -9,9 +9,14 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
+/* ── Reset toàn cục và style body ── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
+/* ── Thanh tiêu đề cố định (sticky) trên cùng, nền xanh đậm ── */
 .hdr{background:var(--Pdk);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .hdr-in{max-width:960px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:14px}
 .back-btn{color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2)}
@@ -20,11 +25,14 @@ body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14
 .hdr-prog{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.15);padding:5px 12px;border-radius:20px}
 .sv-badge{font-size:11px;color:rgba(255,255,255,.55);font-family:var(--mono)}
 main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
+/* ── Hộp tiến độ làm bài: thanh ngang thể hiện % câu đã làm ── */
 .prog-wrap{margin-bottom:18px;background:var(--sur);border-radius:var(--r);border:1px solid var(--brd);padding:12px 18px;box-shadow:var(--sh)}
 .prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:500}
 .prog-track{height:8px;background:var(--Plt);border-radius:4px;overflow:hidden}
 .prog-fill{height:100%;background:var(--P);border-radius:4px;transition:width .4s}
+/* ── Thanh thông tin sinh viên (gradient xanh), hiện tên + STT ── */
 .sv-infobar{background:linear-gradient(135deg,var(--Pdk),var(--P));color:#fff;border-radius:var(--r);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+/* ── Card (thẻ) chứa nội dung: lý thuyết, câu hỏi, bài số ── */
 .card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:18px;overflow:hidden}
 .card-hd{padding:13px 20px;display:flex;align-items:center;gap:11px;border-bottom:1.5px solid var(--brd);background:var(--Plt)}
 .card-hd i{font-size:20px;color:var(--P)}
@@ -32,9 +40,11 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 .card-hd p{font-size:11px;color:var(--muted);margin-top:2px}
 .cbadge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--P);color:#fff;letter-spacing:.6px;white-space:nowrap}
 .card-body{padding:16px 20px;display:flex;flex-direction:column;gap:13px}
+/* ── Hộp công thức: nền xanh nhạt, viền trái xanh đậm, font monospace ── */
 .fml-box{background:#F8FBFF;border:1.5px solid #BBDEFB;border-left:4px solid var(--P);border-radius:0 8px 8px 0;padding:12px 16px;font-family:var(--mono);font-size:13px;line-height:1.9}
 .ftitle{font-family:var(--sans);font-size:11px;font-weight:700;color:var(--P);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .frow{margin-bottom:3px;color:var(--Pdk)}
+/* ── Hộp lý thuyết (xanh nhạt) và hộp gợi ý (vàng cam) ── */
 .theory{background:var(--Plt);border-left:4px solid var(--P);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7}
 .theory-lbl{font-weight:700;color:var(--P);font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
 .earth-box{background:#FFF8E1;border-left:4px solid #FF8F00;border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7;color:#4E342E}
@@ -42,6 +52,7 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 .succ-box{background:var(--Glt);border-left:4px solid var(--G);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7;color:var(--Gdk);font-weight:600}
 .sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--P);display:flex;align-items:center;gap:7px;margin:2px 0}
 .sec-lbl::after{content:'';flex:1;height:1px;background:var(--brd)}
+/* ── Câu hỏi trắc nghiệm (MCQ): khung, câu hỏi, các lựa chọn, phản hồi ── */
 .mcq-wrap{border:1px solid var(--brd);border-radius:var(--r);overflow:hidden}
 .mcq-q{padding:12px 15px 9px;font-size:14px;font-weight:600;border-bottom:1px solid var(--Plt);background:#FAFCFF;line-height:1.5}
 .mcq-num{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--P);background:var(--Plt);padding:2px 7px;border-radius:4px;margin-right:6px}
@@ -49,9 +60,11 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 .mcq-opt{padding:9px 13px;cursor:pointer;display:flex;align-items:flex-start;gap:9px;font-size:13px;border-top:1px solid var(--Plt);transition:background .12s;line-height:1.45}
 .mcq-opt:hover{background:var(--Plt)}
 .mkey{font-family:var(--mono);font-size:11px;font-weight:700;min-width:22px;height:22px;background:var(--Plt);color:var(--P);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+/* Màu khi chọn đúng (xanh lá) hoặc sai (đỏ); reveal-ok = hiện đáp án đúng mờ */
 .mcq-opt.ok{background:var(--Glt)!important}.mcq-opt.ok .mkey{background:var(--G);color:#fff}
 .mcq-opt.no{background:var(--Rlt)!important}.mcq-opt.no .mkey{background:var(--R);color:#fff}
 .mcq-opt.reveal-ok{background:var(--Glt)!important;opacity:.6}.mcq-opt.reveal-ok .mkey{background:var(--G);color:#fff}
+/* Phần giải thích bên dưới câu hỏi, ẩn mặc định, hiện sau khi chọn */
 .mcq-exp{padding:9px 14px;font-size:12px;line-height:1.6;border-top:1px solid var(--brd);display:none}
 .mcq-exp.show{display:block}
 .mcq-exp.ok-exp{background:var(--Glt);color:var(--Gdk)}
@@ -61,6 +74,7 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 .btn-sm{padding:6px 13px;font-size:12px}
 .btn-p{background:var(--P);color:#fff}.btn-a{background:var(--A);color:#fff}
 .btn:hover{opacity:.85}
+/* ── Thanh điều hướng cố định dưới cùng: nộp bài và chuyển trang ── */
 .sticky-nav{position:fixed;bottom:0;left:0;right:0;background:var(--Pdk);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:200;font-size:13px;box-shadow:0 -2px 12px rgba(0,0,0,.2)}
 .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
 @media(max-width:620px){.two-col{grid-template-columns:1fr}.mcq-opts.g2c{grid-template-columns:1fr}}
@@ -310,13 +324,31 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — Biến toàn cục
+   ANS            : kết quả từng câu MCQ (key='mcq-q1'..'mcq-q10')
+                    null=chưa làm · true=đúng · false=sai
+   _submitted     : cờ ngăn nộp bài nhiều lần
+   TOTAL_QUESTIONS: tổng số câu (10 MCQ lý thuyết cố định)
+   ================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
 ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'].forEach(function(k){ANS['mcq-'+k]=null;});
 
+/* ================================================================
+   KHỐI 2 — Hàm tiện ích
+   getSV(): đọc {name, mssv, stt, classId} từ sessionStorage 'ncm_sv'
+   ================================================================ */
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
+/* ================================================================
+   KHỐI 3 — Chấm điểm và cập nhật tiến độ
+   pickMCQ(id, picked, correct): tô màu ok/no/reveal-ok, lưu ANS['mcq-id'],
+                                  gọi updateProg()
+   updateProg()                : đếm attempted/done/total, cập nhật thanh
+                                 tiến độ, lưu 'prog_c5_51', kích hoạt nút Nộp
+   ================================================================ */
 function pickMCQ(id,picked,correct){
   if(ANS['mcq-'+id]!==undefined&&ANS['mcq-'+id]!==null)return;
   document.querySelectorAll('[id^="mco-'+id+'-"]').forEach(function(el,i){
@@ -339,6 +371,7 @@ function updateProg(){
   document.getElementById('prog-text').textContent='Đã làm: '+attempted+'/'+total+' ('+attemPct+'%) · Đúng: '+done+' ('+donePct+'%)';
   document.getElementById('nav-prog').textContent=attempted+'/'+total;
   document.getElementById('hdr-prog').textContent=attempted+' / '+total;
+  // Lưu tiến độ vào localStorage để trang mục lục (index_C5.html) đọc được
   try{localStorage.setItem('prog_c5_51',JSON.stringify({done:done,total:total,attempted:attempted}));}catch(e){}
   if(!_submitted){
     var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
@@ -352,6 +385,14 @@ function updateProg(){
   }
 }
 
+/* ================================================================
+   KHỐI 5 — Nộp bài lên server
+   chapterId      = 'C5-51-LyThuyet'
+   WORKER_URL     : từ config.js (fallback URL mặc định)
+   MIN_ATTEMPT_PCT: từ config.js (fallback 5%)
+   submitResult() : POST {name, mssv, stt, classId, chapterId, score,
+                    correct, total, duration} lên WORKER_URL
+   ================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -367,7 +408,7 @@ function submitResult(){
     alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');
     return;
   }
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C5-51-LyThuyet',score:scorePct,correct:done,total:total,duration:0})
@@ -384,6 +425,11 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỞI TẠO — window.onload
+   Hiển thị tên/STT SV từ sessionStorage; đặt TOTAL_QUESTIONS;
+   đặt nút Nộp bài về trạng thái khóa ban đầu; gọi updateProg()
+   ================================================================ */
 window.onload=function(){
   var sv=getSV();
   if(sv&&sv.name){

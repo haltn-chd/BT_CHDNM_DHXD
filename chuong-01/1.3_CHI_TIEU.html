@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -411,9 +414,23 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS            : lưu kết quả từng câu { id: true/false/null }
+   _submitted     : cờ ngăn nộp lại sau khi đã gửi
+   TOTAL_QUESTIONS: tổng số câu, gán sau window.onload
+================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=0;
+
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH DÙNG CHUNG
+   r1/r2/r3  : làm tròn 1/2/3 chữ số thập phân
+   seededRng : sinh ngẫu nhiên LCG theo seed STT
+   getSV     : đọc thông tin SV từ sessionStorage 'ncm_sv'
+   scrollNext: cuộn tới ô nhập đầu tiên chưa đúng
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -421,6 +438,11 @@ function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;return func
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp)inp.closest('.ans-row').scrollIntoView({behavior:'smooth',block:'center'});}
 
+/* ================================================================
+   KHỐI 3 — CHẤM CÂU HỎI ĐIỀN SỐ
+   chkFill(id, ans, tol): kiểm tra ô nhập, tô xanh/đỏ, lưu vào ANS
+   makeQ(id, label, ans, tol, unit): tạo HTML 1 hàng câu hỏi điền số
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id);var chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -437,6 +459,11 @@ function makeQ(id,label,ans,tol,unit){
     +'<input class="ans-inp" id="'+id+'" type="number" step="any" placeholder="?" oninput="chkFill(\''+id+'\','+ans+','+tol+')">'
     +'<span class="ans-unit">'+unit+'</span><span class="chip" id="ck-'+id+'"></span></div>';
 }
+/* ================================================================
+   KHỐI 4 — THEO DÕI TIẾN ĐỘ
+   Cập nhật thanh progress, nút nộp bài, và lưu localStorage.
+   ⚠️ Key localStorage là 'prog_c1_13' — index_C1.html đọc đúng key này.
+================================================================ */
 function updateProg(){
   var attempted=0,done=0,total=TOTAL_QUESTIONS||Object.keys(ANS).length;
   Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){attempted++;if(ANS[k]===true)done++;}});
@@ -458,6 +485,11 @@ function updateProg(){
     }
   }
 }
+/* ================================================================
+   KHỐI 5 — NỘP BÀI LÊN CLOUDFLARE WORKER
+   chapterId: 'C1-13-ChiTieu' — định danh bài này trên server.
+   Worker giới hạn 2 lần nộp/chương. MIN_ATTEMPT_PCT từ config.js.
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -470,7 +502,7 @@ function submitResult(){
   if(attempted===0){alert('⚠️ Chưa làm câu nào!');return;}
   var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
   if(attemPct<minPct){alert('⚠️ Cần làm tối thiểu '+minPct+'% số câu mới được nộp! Đã làm: '+attemPct+'%');return;}
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C1-13-ChiTieu',score:scorePct,correct:done,total:total,duration:0})
@@ -487,6 +519,14 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 6 — SINH DỮ LIỆU MẪU ĐẤT (2 kiểu đầu vào)
+   genType1(rng): đầu vào Q, Qk, V, Vh (khối lượng + thể tích TN)
+     → tính ra: Vr, n, m, e, S, γtn, γk, γbh, γdn, γh
+   genType2(rng): đầu vào w, γtn, Δ (độ ẩm + TLR tự nhiên + tỷ trọng)
+     → tính ra: γk, n, e, S, γbh, γdn
+   Dùng chung cho cả nhóm A, B, C — chỉ thay seed khác nhau.
+================================================================ */
 // Sinh bộ số liệu kiểu 1: Q, Qk, V, Vh (giống _genB3_type1 trong ch1.js)
 function genType1(rng){
   var V=Math.round(60+rng()*40);
@@ -522,6 +562,17 @@ function genType2(rng){
   return {w:w,g_tn:g_tn,D:D,g_k:g_k,n:n,e:e,S:S,g_bh:g_bh,g_dn:g_dn};
 }
 
+/* ================================================================
+   KHỐI 7 — BÀI TẬP NHÓM A (hướng dẫn đầy đủ, 15 dạng)
+   Mỗi bài là 1 IIFE độc lập — sửa 1 bài không ảnh hưởng bài khác.
+   Seed: seededRng(stt * prime + offset) — xem comment trong từng bài
+     A1-A4 : từ Q,Qk,V,Vh → Vr, n, m, e, S, γ (genType1)
+     A5-A6 : từ w,γtn,Δ   → γk, n, e, S, γbh  (genType2)
+     A7-A12: các bài ngược — cho 2 đại lượng, tìm đại lượng còn lại
+     A13   : tình huống mưa tăng độ ẩm
+     A14   : đào đất tơi xốp (hệ số Kp)
+     A15   : lu lèn đầm nén (hệ số K, γk,max Proctor)
+================================================================ */
 function genA(stt){
   // A1: n, m từ Q,Qk,V,Vh
   (function(){
@@ -801,6 +852,13 @@ function genA(stt){
   })();
 }
 
+/* ================================================================
+   KHỐI 8 — BÀI TẬP NHÓM B (có công thức) VÀ NHÓM C (tự nhận biết)
+   genBC(stt): tạo HTML động cho 6 dạng bài × 2 nhóm (B+C)
+   genOne(id, type, stt, s1, s2): sinh 1 bài theo type
+   CFG: 6 dạng bài tương ứng A1-A6 (rút gọn bớt gợi ý)
+   ĐỂ THÊM DẠNG BÀI: thêm object vào CFG và xử lý type trong genOne
+================================================================ */
 function genBC(stt){
   var CFG=[
     {id:'1',title:'Độ rỗng n, độ đặc m',fml:'V<sub>r</sub>=V−V<sub>h</sub> &nbsp;·&nbsp; n=V<sub>r</sub>/V &nbsp;·&nbsp; m=V<sub>h</sub>/V',type:'nm'},
@@ -873,6 +931,14 @@ function genOne(id,type,stt,s1,s2){
   }
 }
 
+/* ================================================================
+   KHỐI 9 — KHỞI TẠO TRANG
+   1. Đọc SV từ sessionStorage → hiển thị lên header
+   2. genA(stt)  → render 15 bài nhóm A vào HTML skeleton
+   3. genBC(stt) → tạo HTML động nhóm B+C, gọi genOne()
+   4. TOTAL_QUESTIONS = đếm tất cả key ANS đã đăng ký
+   5. updateProg() → cập nhật lần đầu (0%)
+================================================================ */
 window.onload=function(){
   var sv=getSV();
   var stt=1;

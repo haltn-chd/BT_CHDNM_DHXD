@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=tím chính (#6A1B9A — màu chủ đạo bài 4.4 Tổng hợp), --Pdk/Plt=tối/nhạt
+   --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo), --Alt=vàng nhạt
+   --bg=nền trang (tím nhạt #F3E5F5), --sur=nền card, --brd=viền tím nhạt, --muted=chữ mờ ── */
 :root{--P:#6A1B9A;--Pdk:#4A148C;--Plt:#EDE7F6;--Pmd:#7B1FA2;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#F3E5F5;--sur:#fff;--brd:#CE93D8;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(106,27,154,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -259,7 +263,20 @@ table.tbl tr:nth-child(even) td{background:#F9F5FF}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — BIẾN TOÀN CỤC
+   ANS: object {id → true/false/null} ghi nhận kết quả từng câu
+   _submitted: cờ khóa sau khi nộp bài (chống nộp nhiều lần)
+   TOTAL_QUESTIONS: đếm sau genB() trong window.onload
+================================================================ */
 var ANS={}, _submitted=false, TOTAL_QUESTIONS=0;
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH
+   r1/r2/r3/r4(v): làm tròn 1–4 chữ số thập phân
+   seededRng(seed): sinh số ngẫu nhiên có hạt giống LCG
+     s = (s*9301 + 49297) % 233280  (khác công thức ch2/ch3!)
+   getSV(): đọc thông tin sinh viên từ sessionStorage
+================================================================ */
 function r1(v){return Math.round(v*10)/10}
 function r2(v){return Math.round(v*100)/100}
 function r3(v){return Math.round(v*1000)/1000}
@@ -267,6 +284,13 @@ function r4(v){return Math.round(v*10000)/10000}
 function seededRng(seed){var s=(seed%233280+233280)%233280||1;return function(){s=(s*9301+49297)%233280;return s/233280;}}
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
+/* ================================================================
+   KHỐI 3 — BẢNG HỆ SỐ PHÂN BỐ ỨNG SUẤT K₀ (Boussinesq)
+   K0_ZB[10]: z/b từ 0 đến 3.0; K0_LB[5]: l/b từ 1.0 đến 5.0
+   K0_DATA[10][5]: hệ số k₀ tra theo (l/b, z/b) — ma trận 10×5
+   interp1(xs,ys,x): nội suy tuyến tính 1 chiều
+   getK0(lb,zb): nội suy song tuyến tính 2D → r3(k0)
+================================================================ */
 /* ── Bảng k0 ── */
 var K0_ZB=[0,0.25,0.50,0.75,1.00,1.25,1.50,2.00,2.50,3.00];
 var K0_LB=[1.0,1.5,2.0,3.0,5.0];
@@ -292,6 +316,15 @@ function getK0(lb,zb){
   return r3(interp1(K0_ZB,vals,zb));
 }
 
+/* ================================================================
+   KHỐI 4 — LOGIC CHẤM & NỘP BÀI
+   chkFill(id,ans,tol): chấm ô nhập số, cập nhật ANS + giao diện
+   ⚠️ Không có pickMCQ — bài tổng hợp 4.4 chỉ có bài tính số
+   updateProg(): tính % hoàn thành, lưu 'prog_c4_44' localStorage
+   makeQ(id,label,ans,tol,unit): sinh HTML ô nhập + đăng ký ANS
+   submitResult(): nộp bài — gửi POST chapter:'4.4'
+   ⚠️ updateProg chỉ lưu done/total (không có attempted như ch2/ch3)
+================================================================ */
 function chkFill(id,ans,tol){
   var inp=document.getElementById(id),chip=document.getElementById('ck-'+id);
   if(!inp||!chip)return;
@@ -336,6 +369,14 @@ function submitResult(){
     .catch(function(){alert('Lỗi kết nối. Vui lòng thử lại.');});
 }
 
+/* ================================================================
+   KHỐI 5 — ĐĂNG KÝ ANS & SINH SỐ LIỆU NHÓM B
+   Đăng ký trước ANS[k]=null cho 8 câu của ví dụ cố định
+     (vm1-F, vm1-pgl, vm5-chk, vm6-s1…s4, vm6-Stot)
+   genB(stt): sinh 1 bài duy nhất nhóm B — móng đơn 4 phân tố
+     Tính pgl, tra K₀ từng phân tố, kiểm tra tắt lún, cộng S
+   ⚠️ Không có genA, genBC, genOne — file này chỉ có genB
+================================================================ */
 /* ── Đăng ký ANS cho ví dụ cố định ── */
 ['vm1-F','vm1-pgl','vm5-chk','vm6-s1','vm6-s2','vm6-s3','vm6-s4','vm6-Stot'].forEach(function(k){ANS[k]=null;});
 
@@ -403,6 +444,13 @@ function genB(stt){
   document.getElementById('b-q').innerHTML=q;
 }
 
+/* ================================================================
+   KHỐI 6 — KHỞI TẠO & WINDOW.ONLOAD
+   Ghi timestamp bắt đầu làm bài vào window._startTime
+   window.onload: đọc SV, gọi genB(stt),
+     đếm TOTAL_QUESTIONS = Object.keys(ANS).length
+   ⚠️ Không có MCQ — không có mảng ['mcq-...'].forEach trước onload
+================================================================ */
 window._startTime=Date.now();
 
 window.onload=function(){

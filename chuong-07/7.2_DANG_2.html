@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -369,6 +372,14 @@ svg text{font-family:'Plus Jakarta Sans',sans-serif}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — DỮ LIỆU BÀI TẬP CHỌN PHƯƠNG ÁN MÓNG
+   EX: mảng 13 bài tập thực tế (nhà dân, VP, cầu, silo, bể chứa, kho...)
+   Mỗi phần tử: { id, title, type, load, gwl, diff,
+     layers: [{n, name, h, g, c, phi, spt, q}],  ← địa tầng 4 lớp
+     opts: {A/B/C/D: mô tả phương án},
+     ans: chỉ số đúng (0-based), hint: giải thích kỹ thuật }
+================================================================ */
 var EX=[
   {id:'b1',title:'Nhà dân 2 tầng ven sông · N=300 kN',type:'Nhà dân',load:'N=300 kN (móng đơn)',gwl:'−1.2m',diff:'easy',
    layers:[{n:1,name:'Bùn sét',h:3.5,g:15.5,c:8,phi:'5°',spt:1,q:'ryeu'},{n:2,name:'Sét pha dẻo mềm',h:5.0,g:17.5,c:15,phi:'12°',spt:7,q:'tb'},{n:3,name:'Cát mịn chặt vừa',h:8.0,g:18.2,c:0,phi:'28°',spt:18,q:'tb'},{n:4,name:'Cát thô chặt',h:12.0,g:19.5,c:0,phi:'34°',spt:40,q:'rtot'}],
@@ -424,6 +435,16 @@ var EX=[
    ans:1,hint:'Tải phân bố rộng, nhỏ (40 kPa). Cọc không cần thiết và rất tốn kém cho kho phân phối. Bấc thấm + gia tải trước là giải pháp phổ biến nhất cho đất yếu dưới nền kho — đã áp dụng rộng rãi ở ĐBSCL.'}
 ];
 
+/* ================================================================
+   KHỐI 2 — HÀM TIỆN ÍCH HIỂN THỊ
+   qClass(q)     : mã chất lượng → class CSS (ryeu/yeu/tb/tot/rtot)
+   qLabel(q)     : mã chất lượng → nhãn tiếng Việt ("Rất yếu"..."Rất tốt")
+   diffBadge(d)  : độ khó → badge HTML có class màu tương ứng
+   renderEX()    : tạo HTML accordion cho 13 bài EX, chèn vào #ex-zone;
+                   mỗi bài có bảng địa tầng + 4 lựa chọn phương án + hint
+   toggleEx(id)  : mở/đóng accordion của bài EX theo id
+   toggleHint(id): hiện/ẩn hộp gợi ý kỹ thuật
+================================================================ */
 function qClass(q){var m={ryeu:'q-ryeu',yeu:'q-yeu',tb:'q-tb',tot:'q-tot',rtot:'q-rtot'};return m[q]||'';}
 function qLabel(q){var m={ryeu:'Rất yếu',yeu:'Yếu',tb:'Trung bình',tot:'Tốt',rtot:'Rất tốt'};return m[q]||q;}
 function diffBadge(d){
@@ -432,6 +453,13 @@ function diffBadge(d){
   return '<span class="ex-badge '+m[d]+'">'+l[d]+'</span>';
 }
 
+/* ================================================================
+   KHỐI 3 — BIẾN TOÀN CỤC
+   ANS            : kết quả từng bài/câu
+                    key = id bài EX (b1..b13) hoặc 'mcq-a1'/'mcq-a2'
+   _submitted     : cờ ngăn nộp bài lần 2
+   TOTAL_QUESTIONS: 15 (cố định: 13 bài EX + 2 câu MCQ lý thuyết a1, a2)
+================================================================ */
 var ANS={};
 var _submitted=false;
 var TOTAL_QUESTIONS=15;
@@ -482,6 +510,16 @@ function toggleHint(id){
   if(el)el.style.display=el.style.display==='block'?'none':'block';
 }
 
+/* ================================================================
+   KHỐI 4 — CHẤM CÂU HỎI & CẬP NHẬT TIẾN ĐỘ
+   getSV()    : đọc thông tin SV từ sessionStorage 'ncm_sv'
+   pickMCQ(id, picked, correct): chấm câu MCQ lý thuyết (a1/a2),
+                KHÔNG tự động hiện hint sau khi chọn
+   pickEX(id, picked, correct) : chấm bài chọn phương án móng;
+                TỰ ĐỘNG mở hint giải thích kỹ thuật sau khi SV trả lời
+   updateProg(): tính tiến độ attempted/done, lưu localStorage 'prog_c7_72'
+                (dùng TOTAL_QUESTIONS=15 cố định, không đếm Object.keys)
+================================================================ */
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
 function pickMCQ(id,picked,correct){
@@ -536,6 +574,14 @@ function updateProg(){
   }
 }
 
+/* ================================================================
+   KHỐI 5 — NỘP BÀI LÊN SERVER
+   submitResult(): POST kết quả lên Cloudflare Worker
+   ⚠️ Trước khi POST: tự động mở hết accordion + hiện toàn bộ hint
+      để SV xem lại toàn bộ bài trước khi kết quả được ghi nhận
+   chapterId   : 'C7-72-PhuongAnMong'
+   WORKER_URL / MIN_ATTEMPT_PCT: đọc từ config.js nếu có
+================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -557,7 +603,7 @@ function submitResult(){
     var hint=document.getElementById('hint_'+ex.id);
     if(hint)hint.style.display='block';
   });
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.phamvietanh158.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C7-72-PhuongAnMong',score:scorePct,correct:done,total:total,duration:0})
@@ -572,6 +618,13 @@ function submitResult(){
   .catch(function(err){alert('❌ Không kết nối được Worker: '+err.message);});
 }
 
+/* ================================================================
+   KHỐI 6 — KHỞI TẠO TRANG
+   1. Hiển thị tên SV/STT từ sessionStorage lên header
+   2. Đăng ký 2 câu MCQ lý thuyết: ANS['mcq-a1']=null, ANS['mcq-a2']=null
+   3. Gọi renderEX() → render 13 bài tập chọn phương án vào #ex-zone
+   4. Gán TOTAL_QUESTIONS=15, khởi tạo nút Nộp bài, gọi updateProg()
+================================================================ */
 window.onload=function(){
   var sv=getSV();
   if(sv&&sv.name){

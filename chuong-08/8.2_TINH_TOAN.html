@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -483,6 +486,12 @@ svg text{font-family:'Plus Jakarta Sans',sans-serif}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — KHỞI TẠO TRANG LÝ THUYẾT TÍNH TOÁN (tĩnh)
+   - Hiển thị tên SV / STT từ sessionStorage 'ncm_sv'
+   - Ghi localStorage 'prog_c8_82' = {done:1,total:1,attempted:1}
+     để đánh dấu SV đã xem trang lý thuyết tính toán này
+================================================================ */
 window.onload=function(){
   var sv=null;try{sv=JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){}
   if(sv&&sv.name){

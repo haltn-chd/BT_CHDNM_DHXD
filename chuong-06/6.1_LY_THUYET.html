@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
 <style>
+/* ── Biến màu sắc và font chữ dùng toàn trang:
+   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
+   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
 :root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
@@ -605,10 +608,26 @@ main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
 </div>
 
 <script>
+/* ================================================================
+   KHỐI 1 — Biến toàn cục
+   ANS      : kết quả từng câu MCQ (null=chưa làm · true=đúng · false=sai)
+   _submitted: cờ ngăn nộp bài nhiều lần
+   MCQ_KEYS : danh sách 12 key câu hỏi (q1..q12)
+   ================================================================ */
 var ANS={}, _submitted=false;
 var MCQ_KEYS=['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12'];
+
+/* ================================================================
+   KHỐI 2 — Hàm tiện ích
+   getSV(): đọc {name, mssv, stt, lop} từ sessionStorage 'ncm_sv'
+   ================================================================ */
 function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
+/* ================================================================
+   KHỐI 3 — Chấm điểm và tiến độ
+   pickMCQ(…)  : xử lý chọn đáp án MCQ, khóa lựa chọn, tô xanh/đỏ, hiện giải thích
+   updateProg(): cập nhật thanh tiến độ, lưu localStorage 'prog_c6_61', mở nút Nộp
+   ================================================================ */
 function pickMCQ(name,idx,correct,expText){
   if(ANS['mcq-'+name]!=null)return;
   var ok=(idx===correct);
@@ -632,6 +651,12 @@ function updateProg(){
   var btn=document.getElementById('btn-nop');
   if(btn&&!_submitted)btn.innerHTML='🔒 Nộp bài <span style="font-size:10px;opacity:.8">('+pct+'%/'+minPct+'%)</span>';
 }
+/* ================================================================
+   KHỐI 5 — Nộp kết quả lên server
+   submitResult(): POST {chapter='6.1', score%, time} lên Cloudflare Worker
+   WORKER_URL      : endpoint Worker (từ config.js)
+   MIN_ATTEMPT_PCT : % tối thiểu phải làm trước khi nộp (từ config.js)
+   ================================================================ */
 function submitResult(){
   if(_submitted){alert('Bài đã nộp rồi!');return;}
   var total=0,done=0;
@@ -646,6 +671,11 @@ function submitResult(){
     .then(function(){_submitted=true;var btn=document.getElementById('btn-nop');btn.textContent='✅ Đã nộp ('+pct+'%)';btn.style.background='#2E7D32';})
     .catch(function(){alert('Lỗi kết nối. Vui lòng thử lại.');});
 }
+/* ================================================================
+   Khởi tạo trang (window.onload)
+   Ghi _startTime để tính thời gian làm bài khi nộp.
+   Hiển thị tên SV, đăng ký 12 key MCQ vào ANS, hiển thị nút Nộp.
+   ================================================================ */
 window._startTime=Date.now();
 window.onload=function(){
   var sv=getSV();
