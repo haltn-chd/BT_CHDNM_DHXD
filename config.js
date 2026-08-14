@@ -6,11 +6,11 @@
 // ═══════════════════════════════════════════════════════
 
 // ── Cloudflare Worker URL (nhận kết quả → Google Sheet) ─
-window.WORKER_URL = "https://dqt-chdnm.bmchdnm.workers.dev";  // ← cập nhật nếu đổi Worker
+window.WORKER_URL = "https://chdnm.haltn.workers.dev";  // ← cập nhật nếu đổi Worker
 
 // ── % số câu phải LÀM (không cần đúng) để được nộp bài ─
 //    Test: 5   |   Chính thức: 70 hoặc 80
-window.MIN_ATTEMPT_PCT = 80;
+window.MIN_ATTEMPT_PCT = 5;
 
 // ── Danh sách lớp (hiện trong dropdown đăng ký của SV) ──────────────
 //    id   = classId gửi lên Worker → phải khớp ALLOWED_CLASSES trong GAS_V4.js
