@@ -58,7 +58,7 @@ window.CHAPTER_SCHEDULE = {
   },
   c3: {          // Chương 3 — Tính Chất Cơ Học
     active: true,
-    open:   null,
+    open:   2026-10-01T07:00:00,
     close:  null,
   },
   c4: {          // Chương 4 — Độ Lún
