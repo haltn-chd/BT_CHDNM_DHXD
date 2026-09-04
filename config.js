@@ -10,7 +10,7 @@ window.WORKER_URL = "https://chdnm.haltn.workers.dev";  // ← cập nhật nế
 
 // ── % số câu phải LÀM (không cần đúng) để được nộp bài ─
 //    Test: 5   |   Chính thức: 70 hoặc 80
-window.MIN_ATTEMPT_PCT = 5;
+window.MIN_ATTEMPT_PCT = 80;
 
 // ── Danh sách lớp (hiện trong dropdown đăng ký của SV) ──────────────
 //    id   = classId gửi lên Worker → phải khớp ALLOWED_CLASSES trong GAS_V4.js
