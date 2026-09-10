@@ -1022,7 +1022,7 @@ function genAll(){
     var xb1=XB_COLS[ic],xb2=XB_COLS[ic+1];
     var zb1=ZB_ROWS[ir],zb2=ZB_ROWS[ir+1];
     var xb, zb, x, z;
-    if(c.mode==='tam'){xb=0.0; zb=(c.interp===0)?ZB_ROWS[ir]:Math.round((zb1+0.3+rng()*0.4*(zb2-zb1))*1000)/1000;}
+    if(c.mode==='tam'||c.mode==='full'){xb=0.0; zb=(c.interp===0)?ZB_ROWS[ir]:Math.round((zb1+0.3+rng()*0.4*(zb2-zb1))*1000)/1000;}
     else{xb=Math.round((xb1+0.2+rng()*0.6*(xb2-xb1))*100)/100; zb=Math.round((zb1+0.2+rng()*0.6*(zb2-zb1))*1000)/1000;}
     x=r2(xb*bw); z=r2(zb*bw);
     var kz=interp2D(KZ,xb,zb), kx=interp2D(KX,xb,zb), kt=interp2D(KT,xb,zb);
