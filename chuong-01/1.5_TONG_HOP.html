@@ -6,49 +6,9 @@
 <title>1.5 — Tổng Hợp Công Thức Chương 1</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="../assets/css/app-core.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/app-components.css?v=1.0">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
-<style>
-/* ── Biến màu sắc và font chữ dùng toàn trang:
-   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
-   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
-:root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
-.hdr{background:var(--Pdk);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
-.hdr-in{max-width:960px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:14px}
-.back-btn{color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2)}
-.hdr-title{flex:1}.hdr-title h1{font-size:15px;font-weight:700}.hdr-title p{font-size:11px;color:rgba(255,255,255,.6)}
-main{max-width:960px;margin:0 auto;padding:20px 20px 60px}
-.card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
-.card-hd{padding:13px 20px;display:flex;align-items:center;gap:11px;border-bottom:1.5px solid var(--brd);background:var(--Plt)}
-.card-hd i{font-size:20px;color:var(--P)}.card-hd h2{font-size:14px;font-weight:700;color:var(--Pdk);flex:1}
-.card-hd p{font-size:11px;color:var(--muted);margin-top:2px}
-.cbadge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--P);color:#fff;letter-spacing:.6px;white-space:nowrap}
-.card-body{padding:16px 20px;display:flex;flex-direction:column;gap:13px}
-.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--P);display:flex;align-items:center;gap:7px;margin:6px 0 12px}
-.sec-lbl::after{content:'';flex:1;height:1px;background:var(--brd)}
-.earth-box{background:#FFF8E1;border-left:4px solid #FF8F00;border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7;color:#4E342E}
-.warn-box{background:var(--Rlt);border-left:4px solid var(--R);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;color:var(--R);line-height:1.6}
-.succ-box{background:var(--Glt);border-left:4px solid var(--G);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;color:var(--Gdk);font-weight:600}
-.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600}
-.btn-sm{padding:6px 13px;font-size:12px}
-.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
-.btn:hover{opacity:.85}
-.sticky-nav{position:fixed;bottom:0;left:0;right:0;background:var(--Pdk);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:200;font-size:13px;box-shadow:0 -2px 12px rgba(0,0,0,.2)}
-.cf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.cf-card{background:#F8FBFF;border:1.5px solid #BBDEFB;border-left:4px solid var(--P);border-radius:0 10px 10px 0;padding:12px 15px}
-.cf-dang{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--P);letter-spacing:.7px;margin-bottom:6px}
-.cf-title{font-size:13px;font-weight:700;color:var(--Pdk);margin-bottom:8px}
-.cf-f{font-family:var(--mono);font-size:12.5px;color:var(--Pdk);line-height:2;background:rgba(21,101,192,.04);border-radius:6px;padding:8px 11px}
-.cf-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
-.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--brd)}
-table.tbl{border-collapse:collapse;width:100%;font-size:12px;font-family:var(--sans)}
-table.tbl th{background:var(--Pdk);color:#fff;padding:6px 10px;text-align:center;white-space:nowrap}
-table.tbl td{padding:5px 10px;border-bottom:1px solid var(--Plt);text-align:center}
-table.tbl tr:nth-child(even) td{background:#F0F7FF}
-.frow{font-family:var(--mono);font-size:13px;line-height:2;color:var(--Pdk)}
-@media(max-width:620px){.cf-grid{grid-template-columns:1fr}}
-</style>
 </head>
 <body>
 <header class="hdr">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<script src="../config.js" onerror="console.log('no config')"></script>
+<link rel="stylesheet" href="../assets/css/app-core.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/app-components.css?v=1.0">
+<script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
+<script src="../assets/js/app-engine.js?v=1.0"></script>
 <style>
 /* ── Biến màu sắc và font chữ dùng toàn trang:
    --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
@@ -1232,7 +1235,7 @@ function pm(id,picked,correct){if(ANS['mcq-'+id]!==null&&ANS['mcq-'+id]!==undefi
          lưu localStorage 'prog_c8_83' = {done, total, attempted},
          cập nhật nút Nộp bài (xanh nếu ≥ MIN_ATTEMPT_PCT %)
 ================================================================ */
-function up(){var at=0,dn=0,tot=TQ||Object.keys(ANS).length;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,dp=tot?Math.round(dn/tot*100):0;document.getElementById('pfill').style.width=ap+'%';document.getElementById('ptxt').textContent='Đã làm: '+at+'/'+tot+' ('+ap+'%) · Đúng: '+dn+' ('+dp+'%)';document.getElementById('np').textContent=at+'/'+tot;document.getElementById('hprog').textContent=at+' / '+tot;try{localStorage.setItem('prog_c8_83',JSON.stringify({done:dn,total:tot,attempted:at}));}catch(e){}if(!_sub){var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;var btn=document.getElementById('btn-nop');if(btn){var rdy=(ap>=mp&&at>0);btn.style.background=rdy?'rgba(46,125,50,.7)':'rgba(150,150,150,.35)';btn.style.borderColor=rdy?'rgba(165,214,167,.6)':'rgba(200,200,200,.4)';btn.innerHTML=(rdy?'✅':'🔒')+' Nộp bài <span style="font-size:10px;opacity:.8">('+ap+'%/'+mp+'%)</span>';}}}
+function up(){var at=0,dn=0,tot=TQ||Object.keys(ANS).length;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,dp=tot?Math.round(dn/tot*100):0;document.getElementById('pfill').style.width=ap+'%';document.getElementById('ptxt').textContent='Đã làm: '+at+'/'+tot+' ('+ap+'%) · Đúng: '+dn+' ('+dp+'%)';document.getElementById('np').textContent=at+'/'+tot;document.getElementById('hprog').textContent=at+' / '+tot;if(!_sub){var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;var btn=document.getElementById('btn-nop');if(btn){var rdy=(ap>=mp&&at>0);btn.style.background=rdy?'rgba(46,125,50,.7)':'rgba(150,150,150,.35)';btn.style.borderColor=rdy?'rgba(165,214,167,.6)':'rgba(200,200,200,.4)';btn.innerHTML=(rdy?'✅':'🔒')+' Nộp bài <span style="font-size:10px;opacity:.8">('+ap+'%/'+mp+'%)</span>';}}}
 
 /* ================================================================
    KHỐI 4 — NỘP BÀI LÊN SERVER
@@ -1241,7 +1244,8 @@ function up(){var at=0,dn=0,tot=TQ||Object.keys(ANS).length;Object.keys(ANS).for
    Kiểm tra: đã đăng nhập, chưa nộp, đã làm tối thiểu MIN_ATTEMPT_PCT%
 ================================================================ */
 // sub (submitResult): gửi điểm lên Worker; chapterId='C8-83-PhuongAnMong'
-function sub(){var sv=gSV();if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập!');return;}if(_sub)return;var tot=TQ||Object.keys(ANS).length,at=0,dn=0;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,sc=tot?Math.round(dn/tot*100):0;if(at===0){alert('⚠️ Chưa làm câu nào!');return;}var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;if(ap<mp){alert('⚠️ Cần làm tối thiểu '+mp+'%!');return;}var wu=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';fetch(wu,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,chapterId:'C8-83-PhuongAnMong',score:sc,correct:dn,total:tot,duration:0})}).then(function(r){return r.json();}).then(function(d){if(d.ok){_sub=true;var btn=document.getElementById('btn-nop');if(btn){btn.innerHTML='✓ Đã nộp ('+sc+'%)';btn.disabled=true;btn.style.background='rgba(46,125,50,.5)';}alert('✅ Nộp thành công! '+dn+'/'+tot);}else alert('❌ '+(d.error||'Lỗi'));}).catch(function(err){alert('❌ '+err.message);});}
+function sub(){var sv=gSV();if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập!');return;}if(_sub)return;var tot=TQ||Object.keys(ANS).length,at=0,dn=0;Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){at++;if(ANS[k]===true)dn++;}});var ap=tot?Math.round(at/tot*100):0,sc=tot?Math.round(dn/tot*100):0;if(at===0){alert('⚠️ Chưa làm câu nào!');return;}var mp=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;if(ap<mp){alert('⚠️ Cần làm tối thiểu '+mp+'%!');return;}var wu=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'';fetch(wu,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,chapterId:'C8-83-PhuongAnMong',score:sc,correct:dn,total:tot,duration:0})}).then(function(r){return r.json();}).then(function(d){if(d.ok){_sub=true;var btn=document.getElementById('btn-nop');if(btn){btn.innerHTML='✓ Đã nộp ('+sc+'%)';btn.disabled=true;btn.style.background='rgba(46,125,50,.5)';}alert('✅ Nộp thành công! '+dn+'/'+tot);}else alert('❌ '+(d.error||'Lỗi'));}).catch(function(err){alert('❌ '+err.message);});}
+if(!wu){alert('⚠️ Chưa cấu hình Worker URL. Liên hệ giảng viên!');return;}
 
 /* ================================================================
    KHỐI 5 — PICKER GHÉP PHƯƠNG ÁN MÓNG
@@ -1319,7 +1323,14 @@ function pkCheck(bid) {
    2. TQ = Object.keys(ANS).length (số câu đã đăng ký ở KHỐI 1)
    3. Gọi up() lần đầu để khởi tạo thanh tiến độ
 ================================================================ */
-window.onload=function(){var sv=gSV();if(sv&&sv.name){document.getElementById('svd').textContent=sv.name+' — STT: '+sv.stt;document.getElementById('svch').textContent='#'+sv.stt;document.getElementById('svbh').textContent='SV #'+sv.stt;}else{document.getElementById('svd').textContent='Chưa đăng nhập';}TQ=Object.keys(ANS).length;up();};
+window.CHAPTER_ID='C8-83-PhuongAnMong';
+window.onload=function(){
+  var info=initChapterPage('c8');
+  if(!info.isOpen)return;
+  var sv=info.sv;
+  if(sv&&sv.name){document.getElementById('svd').textContent=sv.name+' — STT: '+sv.stt;document.getElementById('svch').textContent='#'+sv.stt;document.getElementById('svbh').textContent='SV #'+sv.stt;}else{document.getElementById('svd').textContent='Chưa đăng nhập';}
+  TQ=Object.keys(ANS).length;up();
+};
 </script>
 </body>
 </html>

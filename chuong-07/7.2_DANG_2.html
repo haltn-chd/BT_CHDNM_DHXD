@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -7,115 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="../assets/css/app-core.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/app-components.css?v=1.0">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
-<style>
-/* ── Biến màu sắc và font chữ dùng toàn trang:
-   --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
-   --bg=nền trang, --sur=nền card, --brd=viền, --muted=chữ mờ ── */
-:root{--P:#1565C0;--Pdk:#0D47A1;--Plt:#E3F2FD;--G:#2E7D32;--Glt:#E8F5E9;--Gdk:#1B5E20;--R:#C62828;--Rlt:#FFEBEE;--A:#FF8F00;--Alt:#FFF8E1;--bg:#E8F4FD;--sur:#fff;--brd:#90CAF9;--muted:#546E7A;--text:#0D1B2A;--sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--r:12px;--sh:0 2px 16px rgba(21,101,192,.10)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);font-family:var(--sans);color:var(--text);font-size:14px;line-height:1.6}
-.hdr{background:var(--Pdk);color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
-.hdr-in{max-width:960px;margin:0 auto;padding:0 20px;height:60px;display:flex;align-items:center;gap:14px}
-.back-btn{color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.2)}
-.hdr-title{flex:1}.hdr-title h1{font-size:15px;font-weight:700}.hdr-title p{font-size:11px;color:rgba(255,255,255,.6)}
-.hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
-.hdr-prog{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.15);padding:5px 12px;border-radius:20px}
-.sv-badge-hdr{font-size:11px;color:rgba(255,255,255,.55);font-family:var(--mono)}
-main{max-width:960px;margin:0 auto;padding:20px 20px 80px}
-.prog-wrap{margin-bottom:18px;background:var(--sur);border-radius:var(--r);border:1px solid var(--brd);padding:12px 18px;box-shadow:var(--sh)}
-.prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:500}
-.prog-track{height:8px;background:var(--Plt);border-radius:4px;overflow:hidden}
-.prog-fill{height:100%;background:var(--P);border-radius:4px;transition:width .4s}
-.sv-infobar{background:linear-gradient(135deg,var(--Pdk),var(--P));color:#fff;border-radius:var(--r);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
-.card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:18px;overflow:hidden}
-.card-hd{padding:13px 20px;display:flex;align-items:center;gap:11px;border-bottom:1.5px solid var(--brd);background:var(--Plt)}
-.card-hd i{font-size:20px;color:var(--P)}
-.card-hd h2{font-size:14px;font-weight:700;color:var(--Pdk);flex:1}
-.card-hd p{font-size:11px;color:var(--muted);margin-top:2px}
-.cbadge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--P);color:#fff;letter-spacing:.6px;white-space:nowrap}
-.cbadge-g{background:var(--G)}
-.cbadge-a{background:var(--A)}
-.card-body{padding:16px 20px;display:flex;flex-direction:column;gap:13px}
-.theory{background:var(--Plt);border-left:4px solid var(--P);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7}
-.theory-lbl{font-weight:700;color:var(--P);font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
-.earth-box{background:var(--Alt);border-left:4px solid var(--A);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7;color:#4E342E}
-.succ-box{background:var(--Glt);border-left:4px solid var(--G);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7;color:var(--Gdk);font-weight:500}
-.warn-box{background:var(--Rlt);border-left:4px solid var(--R);border-radius:0 8px 8px 0;padding:11px 15px;font-size:13px;line-height:1.7;color:var(--R)}
-.sec-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--P);display:flex;align-items:center;gap:7px;margin:4px 0}
-.sec-lbl::after{content:'';flex:1;height:1px;background:var(--brd)}
-/* Diagrams */
-.diag-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px}
-@media(max-width:620px){.diag-row{grid-template-columns:1fr}}
-.diag-box{background:#F8FBFF;border:1px solid var(--brd);border-radius:var(--r);padding:12px;overflow:hidden}
-.diag-title{font-size:11px;font-weight:700;color:var(--P);margin-bottom:8px;display:flex;align-items:center;gap:5px}
-/* Soil table */
-.soil-tbl{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
-.soil-tbl th{background:var(--Plt);color:var(--Pdk);font-weight:700;padding:6px 8px;text-align:left;border-bottom:1.5px solid var(--brd)}
-.soil-tbl td{padding:6px 8px;border-bottom:1px solid #EBF5FB;color:var(--text)}
-.soil-tbl tr:last-child td{border-bottom:none}
-.q-yeu{color:var(--R);font-weight:700}
-.q-ryeu{color:#b71c1c;font-weight:700}
-.q-tb{color:var(--A);font-weight:600}
-.q-tot{color:var(--G);font-weight:600}
-.q-rtot{color:var(--Gdk);font-weight:700}
-/* Step guide */
-.step-list{display:flex;flex-direction:column;gap:9px}
-.step{display:flex;gap:11px;align-items:flex-start}
-.step-num{background:var(--P);color:#fff;font-size:11px;font-weight:800;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-family:var(--mono)}
-.step-text{font-size:13px;color:var(--text);line-height:1.5}
-.step-text strong{color:var(--P)}
-/* MCQ */
-.mcq-wrap{border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-top:6px}
-.mcq-q{padding:10px 14px 8px;font-size:13px;font-weight:600;border-bottom:1px solid var(--Plt);background:#FAFCFF;line-height:1.5}
-.mcq-opts{display:grid;gap:0}
-.mcq-opt{padding:8px 13px;cursor:pointer;display:flex;align-items:flex-start;gap:9px;font-size:13px;border-top:1px solid var(--Plt);transition:background .12s;line-height:1.45}
-.mcq-opt:hover{background:var(--Plt)}
-.mkey{font-family:var(--mono);font-size:11px;font-weight:700;min-width:22px;height:22px;background:var(--Plt);color:var(--P);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.mcq-opt.ok{background:var(--Glt)!important}.mcq-opt.ok .mkey{background:var(--G);color:#fff}
-.mcq-opt.no{background:var(--Rlt)!important}.mcq-opt.no .mkey{background:var(--R);color:#fff}
-.mcq-opt.reveal-ok{background:var(--Glt)!important;opacity:.6}.mcq-opt.reveal-ok .mkey{background:var(--G);color:#fff}
-.mcq-exp{padding:8px 14px;font-size:12px;line-height:1.6;border-top:1px solid var(--brd);display:none}
-.mcq-exp.show{display:block}
-.mcq-exp.ok-exp{background:var(--Glt);color:var(--Gdk)}
-.mcq-exp.no-exp{background:var(--Rlt);color:#b71c1c}
-/* Ex accordion */
-.ex-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:10px;overflow:hidden}
-.ex-hd{padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .12s}
-.ex-hd:hover{background:var(--Plt)}
-.ex-hd.open{background:var(--Plt);border-bottom:1px solid var(--brd)}
-.ex-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;white-space:nowrap}
-.eb-a{background:var(--Alt);color:#E65100}
-.eb-b{background:var(--Plt);color:var(--Pdk)}
-.eb-easy{background:var(--Glt);color:var(--Gdk)}
-.eb-med{background:var(--Alt);color:#5D4037}
-.eb-hard{background:var(--Rlt);color:var(--R)}
-.ex-title{flex:1;font-size:14px;font-weight:700;color:var(--Pdk)}
-.ex-meta{font-size:11px;color:var(--muted);margin-top:1px}
-.ex-chev{font-size:16px;color:var(--muted);transition:transform .2s}
-.ex-chev.open{transform:rotate(90deg)}
-.ex-body{display:none;padding:14px 16px 16px}
-.ex-body.open{display:block}
-.info-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-@media(max-width:520px){.info-row{grid-template-columns:1fr}}
-.info-field{background:#F8FBFF;border:1px solid var(--Plt);border-radius:8px;padding:9px 12px}
-.info-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--P);margin-bottom:3px}
-.info-val{font-size:13px;color:var(--text);font-family:var(--mono)}
-/* hint */
-.btn-hint{background:none;border:1px solid var(--brd);color:var(--muted);font-size:12px;font-family:var(--sans);border-radius:6px;padding:5px 12px;cursor:pointer;margin:6px 0;transition:all .15s}
-.btn-hint:hover{border-color:var(--P);color:var(--P)}
-.hint-box{display:none;background:var(--Alt);border-left:3px solid var(--A);border-radius:0 8px 8px 0;padding:9px 13px;font-size:12px;line-height:1.6;color:#4E342E;margin-bottom:6px}
-/* Legend chips */
-.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
-.lchip{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid;font-family:var(--mono)}
-/* Sticky nav */
-.sticky-nav{position:fixed;bottom:0;left:0;right:0;background:var(--Pdk);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:200;font-size:13px;box-shadow:0 -2px 12px rgba(0,0,0,.2)}
-.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:600;transition:opacity .15s}
-.btn-sm{padding:6px 13px;font-size:12px}
-.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
-.btn:hover{opacity:.85}
-svg text{font-family:'Plus Jakarta Sans',sans-serif}
-</style>
+<script src="../assets/js/app-engine.js?v=1.0"></script>
 </head>
 <body>
 <header class="hdr">
@@ -460,9 +355,6 @@ function diffBadge(d){
    _submitted     : cờ ngăn nộp bài lần 2
    TOTAL_QUESTIONS: 15 (cố định: 13 bài EX + 2 câu MCQ lý thuyết a1, a2)
 ================================================================ */
-var ANS={};
-var _submitted=false;
-var TOTAL_QUESTIONS=15;
 
 function renderEX(){
   var z=document.getElementById('ex-zone');
@@ -520,20 +412,7 @@ function toggleHint(id){
    updateProg(): tính tiến độ attempted/done, lưu localStorage 'prog_c7_72'
                 (dùng TOTAL_QUESTIONS=15 cố định, không đếm Object.keys)
 ================================================================ */
-function getSV(){try{return JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){return null;}}
 
-function pickMCQ(id,picked,correct){
-  if(ANS['mcq-'+id]!==undefined&&ANS['mcq-'+id]!==null)return;
-  document.querySelectorAll('[id^="mco-'+id+'-"]').forEach(function(el,i){
-    el.onclick=null;
-    if(i===picked&&picked===correct)el.classList.add('ok');
-    else if(i===picked)el.classList.add('no');
-    else if(i===correct)el.classList.add('reveal-ok');
-  });
-  var exp=document.getElementById('exp-'+id);
-  if(exp){exp.classList.add('show');exp.classList.add(picked===correct?'ok-exp':'no-exp');}
-  ANS['mcq-'+id]=(picked===correct);updateProg();
-}
 
 function pickEX(id,picked,correct){
   if(ANS[id]!==null&&ANS[id]!==undefined)return;
@@ -541,47 +420,17 @@ function pickEX(id,picked,correct){
     el.onclick=null;
     if(i===picked&&picked===correct)el.classList.add('ok');
     else if(i===picked)el.classList.add('no');
-    else if(i===correct)el.classList.add('reveal-ok');
+    else if(i===correct)el.classList.add('reveal');
   });
   var exp=document.getElementById('exp-'+id);
-  if(exp){exp.classList.add('show');exp.classList.add(picked===correct?'ok-exp':'no-exp');}
+  if(exp){exp.classList.add('show');exp.classList.add(picked===correct?'ok-e':'no-e');}
   // show hint
   var hint=document.getElementById('hint_'+id);
   if(hint)hint.style.display='block';
   ANS[id]=(picked===correct);updateProg();
 }
 
-function updateProg(){
-  var attempted=0,done=0;
-  Object.keys(ANS).forEach(function(k){if(ANS[k]!==null&&ANS[k]!==undefined){attempted++;if(ANS[k]===true)done++;}});
-  var total=TOTAL_QUESTIONS;
-  var attemPct=total?Math.round(attempted/total*100):0;
-  var donePct=total?Math.round(done/total*100):0;
-  document.getElementById('prog-fill').style.width=attemPct+'%';
-  document.getElementById('prog-text').textContent='Đã làm: '+attempted+'/'+total+' ('+attemPct+'%) · Đúng: '+done+' ('+donePct+'%)';
-  document.getElementById('nav-prog').textContent=attempted+'/'+total;
-  document.getElementById('hdr-prog').textContent=attempted+' / '+total;
-  try{localStorage.setItem('prog_c7_72',JSON.stringify({done:done,total:total,attempted:attempted}));}catch(e){}
-  if(!_submitted){
-    var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
-    var btn=document.getElementById('btn-nop');
-    if(btn){
-      var ready=(attemPct>=minPct&&attempted>0);
-      btn.style.background=ready?'rgba(46,125,50,.7)':'rgba(150,150,150,.35)';
-      btn.style.borderColor=ready?'rgba(165,214,167,.6)':'rgba(200,200,200,.4)';
-      btn.innerHTML=(ready?'✅':'🔒')+' Nộp bài <span style="font-size:10px;opacity:.8">('+attemPct+'%/'+minPct+'%)</span>';
-    }
-  }
-}
 
-/* ================================================================
-   KHỐI 5 — NỘP BÀI LÊN SERVER
-   submitResult(): POST kết quả lên Cloudflare Worker
-   ⚠️ Trước khi POST: tự động mở hết accordion + hiện toàn bộ hint
-      để SV xem lại toàn bộ bài trước khi kết quả được ghi nhận
-   chapterId   : 'C7-72-PhuongAnMong'
-   WORKER_URL / MIN_ATTEMPT_PCT: đọc từ config.js nếu có
-================================================================ */
 function submitResult(){
   var sv=getSV();
   if(!sv||!sv.name){alert('⚠️ Chưa đăng nhập. Về trang chủ nhập thông tin trước!');return;}
@@ -603,7 +452,8 @@ function submitResult(){
     var hint=document.getElementById('hint_'+ex.id);
     if(hint)hint.style.display='block';
   });
-  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'https://dqt-chdnm.bmchdnm.workers.dev';
+  var workerUrl=(typeof window.WORKER_URL!=='undefined')?window.WORKER_URL:'';
+  if(!workerUrl){alert('⚠️ Chưa cấu hình Worker URL. Liên hệ giảng viên!');return;}
   fetch(workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:sv.name,mssv:sv.mssv,stt:Number(sv.stt)||0,classId:sv.classId,
       chapterId:'C7-72-PhuongAnMong',score:scorePct,correct:done,total:total,duration:0})
@@ -625,23 +475,14 @@ function submitResult(){
    3. Gọi renderEX() → render 13 bài tập chọn phương án vào #ex-zone
    4. Gán TOTAL_QUESTIONS=15, khởi tạo nút Nộp bài, gọi updateProg()
 ================================================================ */
+window.CHAPTER_ID = 'C7-72-PhuongAnMong';
 window.onload=function(){
-  var sv=getSV();
-  if(sv&&sv.name){
-    document.getElementById('sv-display').textContent=sv.name+' — STT: '+sv.stt;
-    document.getElementById('sv-chip').textContent='#'+sv.stt;
-    document.getElementById('sv-badge').textContent='SV #'+sv.stt;
-  } else {
-    document.getElementById('sv-display').textContent='Chưa đăng nhập — về Trang chủ';
-    document.getElementById('sv-chip').textContent='–';
-  }
+  var info = initChapterPage('c7');
+  if (!info.isOpen) return;
   // init ANS for group A MCQs
   ANS['mcq-a1']=null; ANS['mcq-a2']=null;
   renderEX();
   TOTAL_QUESTIONS=15;
-  var minPct=(typeof window.MIN_ATTEMPT_PCT!=='undefined')?window.MIN_ATTEMPT_PCT:5;
-  var btn=document.getElementById('btn-nop');
-  if(btn)btn.innerHTML='🔒 Nộp bài <span style="font-size:10px;opacity:.8">(0%/'+minPct+'%)</span>';
   updateProg();
 };
 </script>

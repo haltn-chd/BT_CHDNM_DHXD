@@ -7,7 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<script src="../config.js" onerror="console.log('no config')"></script>
+<link rel="stylesheet" href="../assets/css/app-core.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/app-components.css?v=1.0">
+<script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
+<script src="../assets/js/app-engine.js?v=1.0"></script>
 <style>
 /* ── Biến màu sắc và font chữ dùng toàn trang:
    --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
@@ -415,9 +418,8 @@ svg text{font-family:'Plus Jakarta Sans',sans-serif}
    - Nếu localStorage 'prog_c8_82' chưa có → ghi {done:1,total:1,attempted:1}
    - Key 'prog_c8_82' dùng chung với trang 8.2 (cả hai đều là trang lý thuyết)
 ================================================================ */
-window.onload=function(){
-  try{var p=JSON.parse(localStorage.getItem('prog_c8_82'));if(!p)localStorage.setItem('prog_c8_82',JSON.stringify({done:1,total:1,attempted:1}));}catch(e){}
-};
+window.CHAPTER_ID='C8-81-LyThuyet';
+window.onload=function(){initChapterPage('c8');};
 </script>
 </body>
 </html>

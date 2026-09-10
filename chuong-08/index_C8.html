@@ -196,15 +196,6 @@ window.onload=function(){
     document.getElementById('sv-display').textContent='Chưa đăng nhập — về Trang chủ để nhập thông tin';
     document.getElementById('sv-badge').textContent='–';
   }
-  var keys=['prog_c8_81','prog_c8_82','prog_c8_83','prog_c8_84','prog_c8_85'];
-  var ids=['prog-81','prog-82','prog-83','prog-84','prog-85'];
-  var tD=0,tA=0;
-  keys.forEach(function(k,i){
-    try{var d=JSON.parse(localStorage.getItem(k)||'null');
-      if(d&&d.total){document.getElementById(ids[i]).textContent=d.done+' / '+d.total;tD+=d.done;tA+=d.total;}}catch(e){}
-  });
-  if(tA){document.getElementById('total-prog-text').textContent=tD+' / '+tA+' ('+Math.round(tD/tA*100)+'%)';
-    document.getElementById('total-prog-fill').style.width=Math.round(tD/tA*100)+'%';}
 };
 </script>
 </body>

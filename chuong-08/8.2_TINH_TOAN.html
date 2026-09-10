@@ -7,7 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="../assets/css/app-core.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/app-components.css?v=1.0">
 <script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
+<script src="../assets/js/app-engine.js?v=1.0"></script>
 <style>
 /* ── Biến màu sắc và font chữ dùng toàn trang:
    --P=xanh chính, --G=xanh lá (đúng), --R=đỏ (sai), --A=cam (cảnh báo)
@@ -492,18 +495,10 @@ svg text{font-family:'Plus Jakarta Sans',sans-serif}
    - Ghi localStorage 'prog_c8_82' = {done:1,total:1,attempted:1}
      để đánh dấu SV đã xem trang lý thuyết tính toán này
 ================================================================ */
+window.CHAPTER_ID='C8-82-TinhToan';
 window.onload=function(){
-  var sv=null;try{sv=JSON.parse(sessionStorage.getItem('ncm_sv'));}catch(e){}
-  if(sv&&sv.name){
-    document.getElementById('sv-display').textContent=sv.name+' — STT: '+sv.stt;
-    document.getElementById('sv-chip').textContent='#'+sv.stt;
-    document.getElementById('sv-badge').textContent='SV #'+sv.stt;
-  } else {
-    document.getElementById('sv-display').textContent='Chưa đăng nhập — về Trang chủ';
-    document.getElementById('sv-chip').textContent='–';
-  }
-  // Mark as viewed
-  try{localStorage.setItem('prog_c8_82',JSON.stringify({done:1,total:1,attempted:1}));}catch(e){}
+  var info=initChapterPage('c8');
+  if(!info.isOpen)return;
 };
 </script>
 </body>

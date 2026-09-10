@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<!--
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║  CHAPTER_TEMPLATE.html — Mẫu trang bài tập chương                      ║
+  ║  HP CHDNM: Cơ Học Đất - Nền Móng · BMCHDNM · ĐHXD Hà Nội             ║
+  ║                                                                          ║
+  ║  HƯỚNG DẪN SỬ DỤNG:                                                     ║
+  ║  1. Copy file này, đặt vào thư mục chương (vd: chuong-05/)              ║
+  ║  2. Đổi tên file: X.Y_TEN_BAI.html                                      ║
+  ║  3. Tìm tất cả chỗ có "TODO" và điền vào nội dung cụ thể                ║
+  ║  4. Viết hàm gen__() cho mỗi dạng câu hỏi của bài                      ║
+  ║  5. Cập nhật config.js để mở khoá bài khi đến ngày giảng               ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- TODO: Đổi title cho đúng bài, vd: "Bài 5.2 — Ứng Suất Trong Đất" -->
+<title>Bài X.Y — Tên Bài Tập</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<!-- Đường dẫn "../assets/" đúng với cấu trúc chuong-XX/ -->
+<link rel="stylesheet" href="../assets/css/app-core.css?v=1.0">
+<link rel="stylesheet" href="../assets/css/app-components.css?v=1.0">
+<script src="../config.js" onerror="console.log('[NCM] config.js not found')"></script>
+<script src="../assets/js/app-engine.js?v=1.0"></script>
+<script src="../assets/js/app-submit.js?v=1.0"></script>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header class="hdr">
+  <div class="hdr-in">
+    <!-- TODO: Đổi href thành đường dẫn đến index chương tương ứng -->
+    <a href="index_CX.html" class="back-btn"><i class="ti ti-arrow-left"></i> Chương X</a>
+    <div class="hdr-title">
+      <!-- TODO: Đổi tiêu đề -->
+      <h1>X.Y — Tên Bài Tập</h1>
+      <p>NCM: Cơ Học Đất - Nền Móng · Bộ môn Cơ học đất - Nền móng · ĐHXD Hà Nội</p>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-prog">
+        <span id="hdr-done">0</span>/<span id="hdr-total">0</span>
+      </div>
+      <div class="sv-badge" id="sv-badge">–</div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN ───────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Thông tin sinh viên (tự điền từ sessionStorage) -->
+  <div class="sv-infobar">
+    <i class="ti ti-id-badge-2" style="font-size:18px;opacity:.8"></i>
+    <div style="flex:1;min-width:0">
+      <div id="sv-display" style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Đang tải...</div>
+      <div style="font-size:11px;opacity:.8">Số liệu tự sinh theo STT · Không chia sẻ kết quả bài với bạn khác</div>
+    </div>
+  </div>
+
+  <!-- ── PHẦN A ─────────────────────────────────────────────────────────── -->
+  <!--
+    Mỗi bài thường có 3 phần: A (thông số bài toán), B (tính toán chính), C (kết quả tổng hợp).
+    Sinh viên làm tuần tự A → B → C.
+  -->
+  <div class="card" id="sec-a">
+    <div class="card-hd">
+      <span class="cbadge">A</span>
+      <!-- TODO: Đổi tiêu đề phần A -->
+      <h2>Thông Số Bài Toán</h2>
+    </div>
+    <div class="card-body">
+
+      <!-- Hộp đất/dữ liệu đầu vào (dùng .earth-box cho nền đất, .fml-box cho công thức) -->
+      <div class="earth-box" id="earth-a">
+        <!-- Nội dung tự sinh bởi genA(stt) — xem hàm JavaScript bên dưới -->
+      </div>
+
+      <!-- Các câu hỏi phần A — tự sinh bởi makeQ() trong genA() -->
+      <div id="q-a"></div>
+
+    </div>
+  </div>
+
+  <!-- ── PHẦN B ─────────────────────────────────────────────────────────── -->
+  <div class="card" id="sec-b" style="display:none">
+    <div class="card-hd">
+      <span class="cbadge">B</span>
+      <!-- TODO: Đổi tiêu đề phần B -->
+      <h2>Tính Toán</h2>
+    </div>
+    <div class="card-body">
+      <div class="earth-box" id="earth-b"></div>
+      <div id="q-b"></div>
+    </div>
+  </div>
+
+  <!-- ── PHẦN C ─────────────────────────────────────────────────────────── -->
+  <div class="card" id="sec-c" style="display:none">
+    <div class="card-hd">
+      <span class="cbadge">C</span>
+      <!-- TODO: Đổi tiêu đề phần C -->
+      <h2>Kết Quả</h2>
+    </div>
+    <div class="card-body">
+      <div class="earth-box" id="earth-c"></div>
+      <div id="q-c"></div>
+    </div>
+  </div>
+
+  <!-- ── THANH TIẾN ĐỘ & NÚT NỘP ──────────────────────────────────────── -->
+  <div class="prog-wrap">
+    <div class="prog-top">
+      <span id="prog-label">0 / 0 câu đúng</span>
+      <span id="prog-pct" style="font-family:var(--mono);font-weight:700;color:var(--P)">0%</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── THANH ĐIỀU HƯỚNG STICKY ────────────────────────────────────────────── -->
+<div class="sticky-nav">
+  <button class="btn btn-ghost" onclick="scrollNext()"><i class="ti ti-arrow-down"></i> Câu tiếp theo</button>
+  <button class="btn" id="btn-nop" onclick="submitResult()"><i class="ti ti-send"></i> Nộp bài</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT — LOGIC BÀI TẬP
+     Chỉ viết các hàm gen__() và renderSection() đặc thù cho bài này.
+     Các hàm dùng chung (makeQ, chkFill, updateProg, ...) đã có trong app-engine.js
+     ══════════════════════════════════════════════════════════════════════════ -->
+<script>
+
+/* ── Khai báo CHAPTER_ID — dùng để ghi điểm vào đúng cột Sheet ─────────── */
+/* TODO: Đổi thành mã bài thực tế, vd: 'C5-21-UngSuat' */
+window.CHAPTER_ID = 'CX-YZ-TenBai';
+
+/* ── Hàm sinh câu hỏi phần A ─────────────────────────────────────────────── */
+function genA(stt) {
+  var rng = seededRng(stt * 97 + 11);
+
+  /* TODO: Sinh số liệu bài toán từ rng(), vd: */
+  /* var gama = r2(16.5 + rng() * 3);           */
+  /* var w    = r1(20   + rng() * 10);           */
+
+  /* Hiển thị số liệu vào .earth-box */
+  document.getElementById('earth-a').innerHTML =
+    '<b>Số liệu bài toán (STT: ' + stt + ')</b><br>' +
+    /* TODO: liệt kê các thông số */
+    '(Điền nội dung sau khi sinh số liệu)';
+
+  /* Sinh câu hỏi vào container #q-a */
+  /* makeQ(id, label, dapAn, doSaiSo, donVi) */
+  /* TODO: thêm các câu hỏi cụ thể, vd: */
+  /* makeQ('q-a1', 'Khối lượng riêng γ', gama, 0.05, 'kN/m³'); */
+  document.getElementById('q-a').innerHTML = '<!-- TODO: các câu A -->';
+}
+
+/* ── Hàm sinh câu hỏi phần B ─────────────────────────────────────────────── */
+function genB(stt) {
+  /* TODO: Tương tự genA nhưng dùng seed khác để B không trùng A */
+  var rng = seededRng(stt * 97 + 22);
+
+  document.getElementById('earth-b').innerHTML =
+    '<b>Yêu cầu tính toán</b><br>(Điền công thức/sơ đồ tính)';
+  document.getElementById('q-b').innerHTML = '<!-- TODO: các câu B -->';
+  document.getElementById('sec-b').style.display = '';
+}
+
+/* ── Hàm sinh câu hỏi phần C ─────────────────────────────────────────────── */
+function genC(stt) {
+  var rng = seededRng(stt * 97 + 33);
+
+  document.getElementById('earth-c').innerHTML =
+    '<b>Kết quả tổng hợp</b><br>(Điền yêu cầu kết quả)';
+  document.getElementById('q-c').innerHTML = '<!-- TODO: các câu C -->';
+  document.getElementById('sec-c').style.display = '';
+}
+
+/* ── Entry point — gọi initChapterPage() rồi sinh nội dung ─────────────── */
+window.onload = function () {
+  /* TODO: Đổi 'cx' thành key chương đúng trong config.js, vd: 'c5' */
+  var info = initChapterPage('cx');
+  if (!info.isOpen) return;          /* Bài chưa mở — framework tự hiển thị lock overlay */
+
+  genA(info.stt);
+  genB(info.stt);
+  genC(info.stt);
+
+  TOTAL_QUESTIONS = Object.keys(ANS).length;
+  updateProg();
+};
+
+</script>
+</body>
+</html>
