@@ -165,15 +165,16 @@ table.btbl td.xb{background:var(--Plt);font-weight:700;color:var(--Pdk);border-r
         <div>&sigma;&#8323; = (p/&pi;) &middot; (2&beta; &minus; sin 2&beta;)</div>
         <div style="margin-top:5px">&beta; = g&#243;c nh&#236;n t&#7915; M t&#7899;i 2 m&#233;p b&#259;ng <em>(radian)</em></div>
         <div style="color:#C62828;font-size:11px">T&#226;m b&#259;ng: &beta; = arctan(b / (2z))</div>
-        <div style="color:#2E7D32;font-size:11px">M&#233;p b&#259;ng: &beta; = arctan(b / z) / 2 &#8249;sai&#8250; &rarr; arctan(b/(2z))+&pi;/4</div>
+        <div style="color:#2E7D32;font-size:11px">M&#233;p b&#259;ng: &beta; = arctan(b / z) / 2</div>
       </div>
     </div>
     <div class="fml-box">
       <div class="fml-title"><i class="ti ti-calculator" style="font-size:11px"></i> C&#225;ch x&#225;c &#273;&#7883;nh &beta;</div>
-      <div><b>T&#226;m b&#259;ng</b> (M d&#432;&#7899;i tr&#7909;c &#273;&#7889;i x&#7913;ng): &nbsp;&beta; = arctan(b / 2z) &nbsp;[rad]</div>
-      <div><b>M&#233;p b&#259;ng</b> (M d&#432;&#7899;i m&#233;p): &nbsp;&beta; = arctan(b / z) &middot; ... xem s&#225;ch</div>
-      <div style="margin-top:5px"><b>T&#7893;ng qu&#225;t</b>: g&#243;c nh&#236;n = &alpha;&#8321; &minus; &alpha;&#8322; v&#7899;i &alpha;&#7522; = arctan(d&#7522;/z), d&#7522; = kho&#7843;ng c&#225;ch ngang &#273;&#7871;n t&#7915;ng m&#233;p</div>
-      <div style="color:#C62828;font-size:11px;margin-top:3px">&bull; T&#226;m: d&#8321;=b/2 (m&#233;p g&#7847;n), d&#8322;=b/2 (m&#233;p xa) &rarr; &beta;=arctan(b/2/z)+arctan(b/2/z)=2arctan(b/2z) &rarr; d&#249;ng c&#244;ng th&#7913;c &sigma;&#8321;,&sigma;&#8323; v&#7899;i &beta;=arctan(b/(2z))</div>
+      <div><b>T&#226;m b&#259;ng</b> (M d&#432;&#7899;i tr&#7909;c &#273;&#7889;i x&#7913;ng): &nbsp;&beta; = arctan(b / (2z)) &nbsp;[rad]</div>
+      <div><b>M&#233;p b&#259;ng</b> (M d&#432;&#7899;i m&#233;p): &nbsp;&beta; = arctan(b / z) / 2 &nbsp;[rad]</div>
+      <div style="margin-top:5px"><b>T&#7893;ng qu&#225;t</b>: &beta; = (&#945;&#8321; + &#945;&#8322;) / 2 v&#7899;i &#945;&#7522; = arctan(d&#7522;/z), d&#7522; = kho&#7843;ng c&#225;ch ngang t&#7915; M &#273;&#7871;n t&#7915;ng m&#233;p</div>
+      <div style="color:#C62828;font-size:11px;margin-top:3px">&bull; T&#226;m: d&#8321;=d&#8322;=b/2 &rarr; &beta;=(arctan(b/(2z))+arctan(b/(2z)))/2=arctan(b/(2z)) &#10003;</div>
+      <div style="color:#2E7D32;font-size:11px">&bull; M&#233;p: d&#8321;=0 (m&#233;p g&#7847;n), d&#8322;=b (m&#233;p xa) &rarr; &beta;=(arctan(0)+arctan(b/z))/2=arctan(b/z)/2 &#10003;</div>
     </div>
     <div class="warn-box">
       &#9888;&#65039; <b>L&#432;u &yacute;:</b> x t&#237;nh t&#7915; <b>t&#226;m b&#259;ng O</b> (kh&#244;ng ph&#7843;i m&#233;p). D&#432;&#7899;i t&#226;m b&#259;ng: x = 0. D&#432;&#7899;i m&#233;p b&#259;ng: x = b/2. T&#7841;i tr&#7909;c &#273;&#7889;i x&#7913;ng (t&#226;m): &tau;<sub>xz</sub> = 0.
@@ -465,7 +466,7 @@ table.btbl td.xb{background:var(--Plt);font-weight:700;color:var(--Pdk);border-r
 </div>
 <div class="card">
   <div class="card-hd"><i class="ti ti-player-play"></i>
-    <div><h2>B&#224;i A6 &middot; H&#432;&#7899;ng d&#7851;n &mdash; &#7912;ng su&#7845;t ch&#237;nh &sigma;&#8321;,&sigma;&#8323; t&#7841;i m&#233;p b&#259;ng<span class="cbadge" style="background:#E65100;font-size:10px;margin-left:6px">&#7912;ng su&#7845;t ch&#237;nh m&#233;p</span></h2><p style="font-size:11px;color:var(--muted)">&beta; t&#237;nh cho &#273;i&#7875;m d&#432;&#7899;i m&#233;p b&#259;ng</p></div>
+    <div><h2>B&#224;i A6 &middot; H&#432;&#7899;ng d&#7851;n &mdash; &#7912;ng su&#7845;t ch&#237;nh &sigma;&#8321;,&sigma;&#8323; t&#7841;i m&#233;p b&#259;ng<span class="cbadge" style="background:#E65100;font-size:10px;margin-left:6px">&#7912;ng su&#7845;t ch&#237;nh m&#233;p</span></h2><p style="font-size:11px;color:var(--muted)">&beta;=arctan(b/z)/2; &sigma;&#8321;=(p/&pi;)(2&beta;+sin2&beta;); &sigma;&#8323;=(p/&pi;)(2&beta;&minus;sin2&beta;)</p></div>
     <span class="cbadge" style="background:#1565C0">&#128218; A6</span>
   </div>
   <div class="card-body">
@@ -926,23 +927,23 @@ function genAll(){
     var p=Math.round(100+rng()*300);
     var b=r1(2+rng()*4);
     var z=r1(0.5+rng()*4);
-    /* mép băng: M nằm dưới mép, góc nhìn = arctan(b/z) (nhìn tới mép đối và trục đứng) */
-    var bt=Math.round(Math.atan(b/z)*10000)/10000; /* beta đơn */
-    var betaFull=bt;
-    var s1=Math.round(p/Math.PI*(betaFull+Math.sin(betaFull))*100)/100;
-    var s3=Math.round(p/Math.PI*(betaFull-Math.sin(betaFull))*100)/100;
+    /* mép băng: góc toàn phần = arctan(b/z); dùng nửa góc β = arctan(b/z)/2 */
+    var bt=Math.round(Math.atan(b/z)/2*10000)/10000; /* beta nửa góc */
+    var s1=Math.round(p/Math.PI*(2*bt+Math.sin(2*bt))*100)/100;
+    var s3=Math.round(p/Math.PI*(2*bt-Math.sin(2*bt))*100)/100;
     document.getElementById('a6-prob').innerHTML=
       '&#127959;&#65039; <b>&#272;&#7873; b&#224;i</b> (STT <b>'+stt+'</b>): p=<b>'+p+' kN/m&#178;</b>, b=<b>'+b+' m</b>. '
       +'T&#237;nh <b>&sigma;&#8321;</b> v&#224; <b>&sigma;&#8323;</b> t&#7841;i m&#233;p b&#259;ng (M th&#7859;ng d&#432;&#7899;i m&#233;p), z=<b>'+z+' m</b>.';
     document.getElementById('a6-step1').innerHTML=
       '&#272;i&#7875;m d&#432;&#7899;i m&#233;p: x = b/2 t&#237;nh t&#7915; t&#226;m O (x/b = 0.5)<br>'
-      +'G&#243;c nh&#236;n: M d&#432;&#7899;i m&#233;p, nh&#236;n t&#7899;i m&#233;p kia (kho&#7843;ng c&#225;ch b) v&#224; &#273;&#7871;n tr&#7909;c &#273;&#7913;ng &rarr; &beta; = arctan(b/z)';
+      +'G&#243;c to&#224;n ph&#7847;n t&#7915; M nh&#236;n h&#7871;t b&#259;ng: &beta;<sub>full</sub> = arctan(b/z)<br>'
+      +'N&#7917;a g&#243;c &#273;&#7875; d&#249;ng c&#244;ng th&#7913;c: &beta; = arctan(b/z) / 2';
     document.getElementById('a6-step2').innerHTML=
-      '&beta; = arctan('+b+'/'+z+') = ?<br>'
+      '&beta; = arctan('+b+'/'+z+') / 2 = ?<br>'
       +'&sigma;&#8321; = ('+p+'/&pi;)(2&beta;+sin2&beta;) = ?<br>'
       +'&sigma;&#8323; = ('+p+'/&pi;)(2&beta;&minus;sin2&beta;) = ?';
     document.getElementById('a6-step3').innerHTML='Ghi k&#7871;t qu&#7843;';
-    document.getElementById('a6-q1').innerHTML=makeQ('a6-bt','&beta; = arctan(b/z) (rad)',bt,0.005,'rad');
+    document.getElementById('a6-q1').innerHTML=makeQ('a6-bt','&beta; = arctan(b/z)/2 (rad)',bt,0.005,'rad');
     document.getElementById('a6-q2').innerHTML=makeQ('a6-s1','&sigma;&#8321; (kN/m&#178;)',s1,r2(s1*0.04+0.5),'kN/m&#178;')+makeQ('a6-s3','&sigma;&#8323; (kN/m&#178;)',s3,r2(s3*0.04+0.3),'kN/m&#178;');
     document.getElementById('a6-q3').innerHTML='';
   })();
@@ -958,7 +959,7 @@ function genAll(){
     {num:'B4',pid:'b4',title:'B&#224;i B4 &middot; C&#243; CT &mdash; &#7912;ng su&#7845;t ch&#237;nh, t&#226;m b&#259;ng',
      fml:'&beta;=arctan(b/(2z)); &sigma;&#8321;=(p/&pi;)(2&beta;+sin2&beta;); &sigma;&#8323;=(p/&pi;)(2&beta;&minus;sin2&beta;)',seeds:[83,539],mode:'s13tam',interp:0},
     {num:'B5',pid:'b5',title:'B&#224;i B5 &middot; C&#243; CT &mdash; &#7912;ng su&#7845;t ch&#237;nh, m&#233;p b&#259;ng',
-     fml:'&beta;=arctan(b/z) (m&#233;p); &sigma;&#8321;,&sigma;&#8323; theo c&#244;ng th&#7913;c Flamant',seeds:[89,541],mode:'s13mep',interp:0},
+     fml:'&beta;=arctan(b/z)/2 (m&#233;p); &sigma;&#8321;=(p/&pi;)(2&beta;+sin2&beta;); &sigma;&#8323;=(p/&pi;)(2&beta;&minus;sin2&beta;)',seeds:[89,541],mode:'s13mep',interp:0},
     {num:'B6',pid:'b6',title:'B&#224;i B6 &middot; C&#243; CT &mdash; T&#237;nh c&#7843; tra b&#7843;ng + &#7913;ng su&#7845;t ch&#237;nh t&#7841;i t&#226;m',
      fml:'x/b=0.0 (t&#226;m); &Delta;&sigma;<sub>z</sub>, &Delta;&sigma;<sub>x</sub> (tra b&#7843;ng) v&#224; &sigma;&#8321;, &sigma;&#8323; (Flamant)',seeds:[97,547],mode:'full',interp:0},
   ];
@@ -981,7 +982,7 @@ function genAll(){
     /* beta */
     var bt=0, s1=0, s3=0;
     if(b.mode==='s13tam'||b.mode==='full'){bt=Math.round(Math.atan(bw/2/z)*10000)/10000; var bf=bt; s1=Math.round(p/Math.PI*(2*bf+Math.sin(2*bf))*100)/100; s3=Math.round(p/Math.PI*(2*bf-Math.sin(2*bf))*100)/100;}
-    else if(b.mode==='s13mep'){bt=Math.round(Math.atan(bw/z)*10000)/10000; s1=Math.round(p/Math.PI*(bt+Math.sin(bt))*100)/100; s3=Math.round(p/Math.PI*(bt-Math.sin(bt))*100)/100;}
+    else if(b.mode==='s13mep'){bt=Math.round(Math.atan(bw/z)/2*10000)/10000; s1=Math.round(p/Math.PI*(2*bt+Math.sin(2*bt))*100)/100; s3=Math.round(p/Math.PI*(2*bt-Math.sin(2*bt))*100)/100;}
     var info='p=<b>'+p+' kN/m&#178;</b>, b=<b>'+bw+' m</b>';
     if(b.mode==='any') info+=', x=<b>'+x+' m</b> t&#7915; t&#226;m O';
     info+=', z=<b>'+z+' m</b>.';
@@ -995,7 +996,7 @@ function genAll(){
     } else if(b.mode==='s13tam'){
       qh=makeQ(b.pid+'-bt','&beta;=arctan(b/(2z)) (rad)',bt,0.005,'rad')+makeQ(b.pid+'-s1','&sigma;&#8321; (kN/m&#178;)',s1,r2(s1*0.04+0.5),'kN/m&#178;')+makeQ(b.pid+'-s3','&sigma;&#8323; (kN/m&#178;)',s3,r2(s3*0.04+0.3),'kN/m&#178;');
     } else if(b.mode==='s13mep'){
-      qh=makeQ(b.pid+'-bt','&beta;=arctan(b/z) (rad)',bt,0.005,'rad')+makeQ(b.pid+'-s1','&sigma;&#8321; (kN/m&#178;)',s1,r2(s1*0.04+0.5),'kN/m&#178;')+makeQ(b.pid+'-s3','&sigma;&#8323; (kN/m&#178;)',s3,r2(s3*0.04+0.3),'kN/m&#178;');
+      qh=makeQ(b.pid+'-bt','&beta;=arctan(b/z)/2 (rad)',bt,0.005,'rad')+makeQ(b.pid+'-s1','&sigma;&#8321; (kN/m&#178;)',s1,r2(s1*0.04+0.5),'kN/m&#178;')+makeQ(b.pid+'-s3','&sigma;&#8323; (kN/m&#178;)',s3,r2(s3*0.04+0.3),'kN/m&#178;');
     } else {
       qh=makeQ(b.pid+'-kz','k<sub>z</sub>',kz,0.006,'')+makeQ(b.pid+'-kx','k<sub>x</sub>',kx,0.006,'')+makeQ(b.pid+'-sz','&Delta;&sigma;<sub>z</sub> (kN/m&#178;)',sz,r2(sz*0.05+0.5),'kN/m&#178;')+makeQ(b.pid+'-sx','&Delta;&sigma;<sub>x</sub> (kN/m&#178;)',sx,r2(sx*0.05+0.3),'kN/m&#178;')+makeQ(b.pid+'-bt','&beta;=arctan(b/(2z)) (rad)',bt,0.005,'rad')+makeQ(b.pid+'-s1','&sigma;&#8321; (kN/m&#178;)',s1,r2(s1*0.04+0.5),'kN/m&#178;')+makeQ(b.pid+'-s3','&sigma;&#8323; (kN/m&#178;)',s3,r2(s3*0.04+0.3),'kN/m&#178;');
     }
