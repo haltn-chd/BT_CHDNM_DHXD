@@ -420,6 +420,7 @@ function genOne(id,type,stt,s1,s2){
            → đếm TOTAL_QUESTIONS → set nút nộp → updateProg
 ================================================================ */
 window.CHAPTER_ID = 'C3-34-DamChat';
+function seededRng(seed){var s=seed%2147483647;if(s<=0)s+=2147483646;var f=function(){s=s*16807%2147483647;return(s-1)/2147483646;};f();f();f();return f;}
 window.onload=function(){
   var info = initChapterPage('c3');
   if (!info.isOpen) return;
