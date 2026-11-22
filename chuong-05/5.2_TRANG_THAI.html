@@ -247,6 +247,27 @@ function scrollNext(){var inp=document.querySelector('.ans-inp:not(.ok)');if(inp
    makeMCQState(...)     : tạo 3 lựa chọn MCQ kết luận trạng thái điểm M
    updateProg()          : đếm tiến độ, lưu 'prog_c5_52', kích hoạt nút Nộp
    ================================================================ */
+function makeMCQState(name,sinVal,sinPhi,correct){
+  // correct: 0=đàn hồi, 1=giới hạn, 2=phá hoại
+  var opts=[
+    'Trạng thái <b>đàn hồi</b> — sinθmax &lt; sinφ (an toàn)',
+    'Trạng thái <b>cân bằng giới hạn</b> — sinθmax = sinφ',
+    'Trạng thái <b>phá hoại</b> — sinθmax &gt; sinφ (nguy hiểm)'
+  ];
+  var html=opts.map(function(o,i){
+    return '<div class="mcq-opt" id="mco-'+name+'-'+i+'" '
+      +'onclick="pickMCQ(\''+name+'\','+i+','+correct+',\''+
+      (i===0?'✓ sinθmax='+sinVal+' &lt; sinφ='+sinPhi+' → Điểm M ở trạng thái đàn hồi, an toàn.':
+       i===1?'✓ sinθmax='+sinVal+' ≈ sinφ='+sinPhi+' → Trạng thái cân bằng giới hạn.':
+              '✓ sinθmax='+sinVal+' &gt; sinφ='+sinPhi+' → Điểm M bị phá hoại, không an toàn.')
+      +'\')">'
+      +'<span class="mkey">'+String.fromCharCode(65+i)+'</span><span>'+o+'</span></div>';
+  }).join('');
+  document.getElementById(name+'-opts').innerHTML=html;
+  var ex=document.getElementById('exp-'+name+'mcq'); if(ex) ex.id='exp-'+name;
+  var wrap=document.getElementById(name+'-mcq-wrap'); if(wrap) wrap.style.display='';
+  ANS['mcq-'+name]=null;
+}
 
 function submitResult(){
   var sv=getSV();
